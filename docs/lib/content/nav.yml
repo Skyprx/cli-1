@@ -8,34 +8,37 @@
   children:
   - title: npm
     url: /commands/npm
-    description: JavaScript package manager
+    description: javascript package manager
   - title: npm access
     url: /commands/npm-access
     description: Set access level on published packages
-  - title: npm adduser
-    url: /commands/npm-adduser
-    description: Add a registry user account
+  - title: npm approve-scripts
+    url: /commands/npm-approve-scripts
+    description: Approve install scripts for specific dependencies
   - title: npm audit
     url: /commands/npm-audit
     description: Run a security audit
   - title: npm bugs
     url: /commands/npm-bugs
-    description: Bugs for a package in a web browser maybe
+    description: Report bugs for a package in a web browser
   - title: npm cache
     url: /commands/npm-cache
     description: Manipulates packages cache
   - title: npm ci
     url: /commands/npm-ci
-    description: Install a project with a clean slate
+    description: Clean install a project
   - title: npm completion
     url: /commands/npm-completion
-    description: Tab completion for npm
+    description: Tab Completion for npm
   - title: npm config
     url: /commands/npm-config
     description: Manage the npm configuration files
   - title: npm dedupe
     url: /commands/npm-dedupe
-    description: Reduce duplication
+    description: Reduce duplication in the package tree
+  - title: npm deny-scripts
+    url: /commands/npm-deny-scripts
+    description: Deny install scripts for specific dependencies
   - title: npm deprecate
     url: /commands/npm-deprecate
     description: Deprecate a version of a package
@@ -47,16 +50,16 @@
     description: Modify package distribution tags
   - title: npm docs
     url: /commands/npm-docs
-    description: Docs for a package in a web browser maybe
+    description: Open documentation for a package in a web browser
   - title: npm doctor
     url: /commands/npm-doctor
-    description: Check your environments
+    description: Check the health of your npm environment
   - title: npm edit
     url: /commands/npm-edit
     description: Edit an installed package
   - title: npm exec
     url: /commands/npm-exec
-    description: Run a command from an npm package
+    description: Run a command from a local or remote npm package
   - title: npm explain
     url: /commands/npm-explain
     description: Explain installed packages
@@ -69,15 +72,15 @@
   - title: npm fund
     url: /commands/npm-fund
     description: Retrieve funding information
+  - title: npm get
+    url: /commands/npm-get
+    description: Get a value from the npm configuration
   - title: npm help
     url: /commands/npm-help
-    description: Search npm help documentation
+    description: Get help on npm
   - title: npm help-search
     url: /commands/npm-help-search
-    description: Get help on npm
-  - title: npm hook
-    url: /commands/npm-hook
-    description: Manage registry hooks
+    description: Search npm help documentation
   - title: npm init
     url: /commands/npm-init
     description: Create a package.json file
@@ -87,12 +90,18 @@
   - title: npm install-ci-test
     url: /commands/npm-install-ci-test
     description: Install a project with a clean slate and run tests
+  - title: npm install-scripts
+    url: /commands/npm-install-scripts
+    description: Manage install-script approvals for dependencies
   - title: npm install-test
     url: /commands/npm-install-test
     description: Install package(s) and run tests
   - title: npm link
     url: /commands/npm-link
     description: Symlink a package folder
+  - title: npm ll
+    url: /commands/npm-ll
+    description: List installed packages
   - title: npm login
     url: /commands/npm-login
     description: Login to a registry user account
@@ -114,6 +123,9 @@
   - title: npm pack
     url: /commands/npm-pack
     description: Create a tarball from a package
+  - title: npm patch
+    url: /commands/npm-patch
+    description: Apply local patches to installed dependencies
   - title: npm ping
     url: /commands/npm-ping
     description: Ping npm registry
@@ -134,7 +146,7 @@
     description: Publish a package
   - title: npm query
     url: /commands/npm-query
-    description: Retrieve a filtered list of packages
+    description: Dependency selector query
   - title: npm rebuild
     url: /commands/npm-rebuild
     description: Rebuild a package
@@ -147,8 +159,8 @@
   - title: npm root
     url: /commands/npm-root
     description: Display npm root
-  - title: npm run-script
-    url: /commands/npm-run-script
+  - title: npm run
+    url: /commands/npm-run
     description: Run arbitrary package scripts
   - title: npm sbom
     url: /commands/npm-sbom
@@ -156,15 +168,12 @@
   - title: npm search
     url: /commands/npm-search
     description: Search for packages
-  - title: npm shrinkwrap
-    url: /commands/npm-shrinkwrap
-    description: Lock down dependency versions for publication
-  - title: npm star
-    url: /commands/npm-star
-    description: Mark your favorite packages
-  - title: npm stars
-    url: /commands/npm-stars
-    description: View packages marked as favorites
+  - title: npm set
+    url: /commands/npm-set
+    description: Set a value in the npm configuration
+  - title: npm stage
+    url: /commands/npm-stage
+    description: Stage packages for publishing
   - title: npm start
     url: /commands/npm-start
     description: Start a package
@@ -180,18 +189,21 @@
   - title: npm token
     url: /commands/npm-token
     description: Manage your authentication tokens
+  - title: npm trust
+    url: /commands/npm-trust
+    description: Manage trusted publishing relationships between packages and CI/CD providers
+  - title: npm undeprecate
+    url: /commands/npm-undeprecate
+    description: Undeprecate a version of a package
   - title: npm uninstall
     url: /commands/npm-uninstall
     description: Remove a package
   - title: npm unpublish
     url: /commands/npm-unpublish
     description: Remove a package from the registry
-  - title: npm unstar
-    url: /commands/npm-unstar
-    description: Remove an item from your favorite packages
   - title: npm update
     url: /commands/npm-update
-    description: Update a package
+    description: Update packages
   - title: npm version
     url: /commands/npm-version
     description: Bump a package version
@@ -203,8 +215,7 @@
     description: Display npm username
   - title: npx
     url: /commands/npx
-    description: Run a command from an npm package
-
+    description: Run a command from a local or remote npm package
 - title: Configuring npm
   shortName: Configuring
   url: /configuring-npm
@@ -218,16 +229,15 @@
   - title: .npmrc
     url: /configuring-npm/npmrc
     description: The npm config files
-  - title: npm-shrinkwrap.json
-    url: /configuring-npm/npm-shrinkwrap-json
-    description: A publishable lockfile
   - title: package.json
     url: /configuring-npm/package-json
     description: Specifics of npm's package.json handling
   - title: package-lock.json
     url: /configuring-npm/package-lock-json
     description: A manifestation of the manifest
-
+  - title: .npm-extension
+    url: /configuring-npm/npm-extension
+    description: Imperative, root-owned manifest repairs
 - title: Using npm
   shortName: Using
   url: /using-npm

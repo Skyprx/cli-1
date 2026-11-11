@@ -10,11 +10,9 @@ description: Stop a package
 
 ### Description
 
-This runs a predefined command specified in the "stop" property of a
-package's "scripts" object.
+This runs a predefined command specified in the "stop" property of a package's "scripts" object.
 
-Unlike with [npm start](/commands/npm-start), there is no default script
-that will run if the `"stop"` property is not defined.
+Unlike with [npm start](/commands/npm-start), there is no default script that will run if the `"stop"` property is not defined.
 
 ### Example
 
@@ -42,7 +40,7 @@ npm stop
 
 ### See Also
 
-* [npm run-script](/commands/npm-run-script)
+* [npm run](/commands/npm-run)
 * [npm scripts](/using-npm/scripts)
 * [npm test](/commands/npm-test)
 * [npm start](/commands/npm-start)

@@ -1,9 +1,9 @@
-const { join, basename } = require('path')
-const fsp = require('fs/promises')
+const { join, basename } = require('node:path')
+const fsp = require('node:fs/promises')
 const hgi = require('hosted-git-info')
 const semver = require('semver')
 const pacote = require('pacote')
-const log = require('proc-log')
+const { log } = require('proc-log')
 const tar = require('tar')
 const { cp, withTempDir } = require('@npmcli/fs')
 const { CWD, run, spawn, git, fs, gh } = require('./util.js')
@@ -93,14 +93,14 @@ const getPrBody = async ({ releases, closePrs }) => {
 
   const { remark } = await import('remark')
   const { default: remarkGfm } = await import('remark-gfm')
-  const { default: remarkGithub } = await import('remark-github')
+  const { default: remarkGithub, defaultBuildUrl } = await import('remark-github')
 
   return remark()
     .use(remarkGfm)
     .use(remarkGithub, {
       repository: 'npm/cli',
-      // dont link mentions, but anything else make the link an explicit referance to npm/cli
-      buildUrl: (values, buildUrl) => values.type === 'mention' ? false : buildUrl(values),
+      // don't link mentions, but anything else make the link an explicit reference to npm/cli
+      buildUrl: (values) => values.type === 'mention' ? false : defaultBuildUrl(values),
     })
     .process(prBody)
     .then(v => String(v))
@@ -172,6 +172,8 @@ const main = async (spec, branch = 'main', opts) => withTempDir(CWD, async (tmpD
 
   const nodeRemote = 'origin'
   const nodeBranch = /^\d+$/.test(branch) ? `v${branch}.x-staging` : branch
+  const stagingVersion = nodeBranch.match(/^(v\d+\.x)-staging$/)?.[1]
+  const nodePrTitle = `${stagingVersion ? `[${stagingVersion}] ` : ''}${npmMessage()}`
   const nodeHost = hgi.fromUrl(await gitNode('remote', 'get-url', nodeRemote, { out: true }))
   const nodePrArgs = ['pr', '-R', nodeHost.path()]
 
@@ -197,7 +199,7 @@ const main = async (spec, branch = 'main', opts) => withTempDir(CWD, async (tmpD
   // get a list of all versions changelogs to add to the body of the PR
   // do this before we checkout our branch and make any changes
   const npmReleases = await Promise.all(newNpmVersions.map(async (v) => {
-    // dont include prereleases unless we are updating to a prerlease since we
+    // don't include prereleases unless we are updating to a prerelease since we
     // manually put all prerelease notes into the first stable major version
     if (v.prerelease.length && !npmVersion.prerelease.length) {
       return null
@@ -238,9 +240,13 @@ const main = async (spec, branch = 'main', opts) => withTempDir(CWD, async (tmpD
 
   let existingPr = null
   const closePrs = []
+  const npmMessagePrefix = npmMessage('')
 
   for (const pr of npmPrs) {
-    const prVersion = pr.title.replace(npmMessage(''), '').trim()
+    const npmMessageIndex = pr.title.indexOf(npmMessagePrefix)
+    const prVersion = npmMessageIndex === -1
+      ? null
+      : pr.title.slice(npmMessageIndex + npmMessagePrefix.length).trim()
     log.silly('checking existing PR', prVersion, pr)
 
     if (!existingPr && prVersion === npmVersion.toString()) {
@@ -259,7 +265,7 @@ const main = async (spec, branch = 'main', opts) => withTempDir(CWD, async (tmpD
     nodePrArgs,
     (existingPr ? ['edit', existingPr.number] : ['create', '-H', `${npmHost.user}:${npmBranch}`]),
     '-B', nodeBranch,
-    '-t', npmMessage(),
+    '-t', nodePrTitle,
   ].flat()
 
   if (dryRun) {

@@ -1,6 +1,6 @@
 'use strict'
 
-const qs = require('querystring')
+const qs = require('node:querystring')
 const test = require('tap').test
 const tnock = require('./fixtures/tnock.js')
 
@@ -157,7 +157,7 @@ test('accepts a from option', async t => {
   t.equal(results.length, 4, 'returns more results if endpoint does so')
 })
 
-test('accepts quality/mainenance/popularity options', async t => {
+test('accepts quality/maintenance/popularity options', async t => {
   const query = qs.stringify({
     text: 'oo',
     size: 20,

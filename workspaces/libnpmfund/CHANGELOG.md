@@ -1,5 +1,235 @@
 # Changelog
 
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.5.2): `@npmcli/arborist@7.5.2`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.5.4): `@npmcli/arborist@7.5.4`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.0.0-pre.1): `@npmcli/arborist@9.0.0-pre.1`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.0.1): `@npmcli/arborist@9.0.1`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.0.2): `@npmcli/arborist@9.0.2`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.0): `@npmcli/arborist@9.1.0`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.1): `@npmcli/arborist@9.1.1`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.2): `@npmcli/arborist@9.1.2`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.3): `@npmcli/arborist@9.1.3`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.4): `@npmcli/arborist@9.1.4`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.5): `@npmcli/arborist@9.1.5`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.6): `@npmcli/arborist@9.1.6`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.7): `@npmcli/arborist@9.1.7`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.8): `@npmcli/arborist@9.1.8`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.9): `@npmcli/arborist@9.1.9`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.1.10): `@npmcli/arborist@9.1.10`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.2.0): `@npmcli/arborist@9.2.0`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.3.0): `@npmcli/arborist@9.3.0`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.3.1): `@npmcli/arborist@9.3.1`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.4.0): `@npmcli/arborist@9.4.0`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.4.1): `@npmcli/arborist@9.4.1`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.4.2): `@npmcli/arborist@9.4.2`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.0-pre.0.0): `@npmcli/arborist@10.0.0-pre.0.0`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.0-pre.2): `@npmcli/arborist@10.0.0-pre.2`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.1): `@npmcli/arborist@10.0.1`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.2): `@npmcli/arborist@10.0.2`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.3): `@npmcli/arborist@10.0.3`
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.4): `@npmcli/arborist@10.0.4`
+
+## [8.0.0](https://github.com/npm/cli/compare/libnpmfund-v8.0.0-pre.1...libnpmfund-v8.0.0) (2026-07-08)
+### ⚠️ BREAKING CHANGES
+* `npm` now supports node `^22.22.2 || ^24.15.0 || >=26.0.0`
+### Features
+* [`5b83698`](https://github.com/npm/cli/commit/5b83698a4f76e3f2962b9954dddb180fa85d4c77) [#9737](https://github.com/npm/cli/pull/9737) trigger release process (#9737) (@reggi)
+
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.0): `@npmcli/arborist@10.0.0`
+
+## [8.0.0-pre.0](https://github.com/npm/cli/compare/libnpmfund-v7.0.20-pre.0...libnpmfund-v8.0.0-pre.0) (2026-06-19)
+### ⚠️ BREAKING CHANGES
+* `npm` now supports node `^22.22.2 || ^24.15.0 || >=26.0.0`
+### Features
+* [`18eb967`](https://github.com/npm/cli/commit/18eb9672dc884be4412752fb6e55e9d33c261c65) [#9559](https://github.com/npm/cli/pull/9559) bump to new node engine range (@owlstronaut)
+### Bug Fixes
+* [`c5292fa`](https://github.com/npm/cli/commit/c5292fa8a09a56b25394d393faf21e47ffb096c0) [#9422](https://github.com/npm/cli/pull/9422) use prerelease strategy without a bug (@owlstronaut)
+### Chores
+* [`0323f2d`](https://github.com/npm/cli/commit/0323f2d74bf2e747957c74992d9431e3fca35f85) [#9559](https://github.com/npm/cli/pull/9559) template-oss-apply (@owlstronaut)
+* [`ee3d87f`](https://github.com/npm/cli/commit/ee3d87fe521bc144493b93a94d456c22eb147dbf) [#9559](https://github.com/npm/cli/pull/9559) `@npmcli/template-oss@5.1.1` (@owlstronaut)
+* [`d25a179`](https://github.com/npm/cli/commit/d25a1798f3ba8ff80437f491afc17e98ef07c77f) [#9559](https://github.com/npm/cli/pull/9559) template-oss-apply (@owlstronaut)
+
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v10.0.0-pre.1): `@npmcli/arborist@10.0.0-pre.1`
+
+## [7.0.0](https://github.com/npm/cli/compare/libnpmfund-v7.0.0-pre.1...libnpmfund-v7.0.0) (2024-12-16)
+### Features
+* [`a7bfc6d`](https://github.com/npm/cli/commit/a7bfc6df76882996ebb834dbca785fdf33b8c50d) [#7972](https://github.com/npm/cli/pull/7972) trigger release process (#7972) (@wraithgar)
+### Chores
+* [`a07f4e0`](https://github.com/npm/cli/commit/a07f4e0d921f640be6aa87736debd550ec478f89) [#7976](https://github.com/npm/cli/pull/7976) `@npmcli/template-oss@4.23.6` (@wraithgar)
+
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.0.0): `@npmcli/arborist@9.0.0`
+
+## [7.0.0-pre.0](https://github.com/npm/cli/compare/libnpmfund-v6.0.0...libnpmfund-v7.0.0-pre.0) (2024-11-26)
+### ⚠️ BREAKING CHANGES
+* libnpmfund now supports node `^20.17.0 || >=22.9.0`
+### Bug Fixes
+* [`44be07c`](https://github.com/npm/cli/commit/44be07cdb6d4e12a41569405e1a13b2d15fc103d) [#7831](https://github.com/npm/cli/pull/7831) for libnpmfund sets node engine range to `^20.17.0 || >=22.9.0` (@reggi)
+### Chores
+* [`6edfe2f`](https://github.com/npm/cli/commit/6edfe2f3a45169b6d194ccd8d366bb8d0e09b4a5) [#7937](https://github.com/npm/cli/pull/7937) `@npmcli/template-oss@4.23.5` (@wraithgar)
+
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v9.0.0-pre.0): `@npmcli/arborist@9.0.0-pre.0`
+
+## [6.0.0](https://github.com/npm/cli/compare/libnpmfund-v5.0.12...libnpmfund-v6.0.0) (2024-10-03)
+### ⚠️ BREAKING CHANGES
+* `libnpmfund` now supports node `^18.17.0 || >=20.5.0`
+### Bug Fixes
+* [`e7298de`](https://github.com/npm/cli/commit/e7298de7026b960ad163cc2a137e27739b91876c) [#7803](https://github.com/npm/cli/pull/7803) align libnpmfund to npm 10 node engine range (@reggi)
+### Chores
+* [`2072705`](https://github.com/npm/cli/commit/2072705aa80d009dc077639adc305692f4a6c0b9) [#7803](https://github.com/npm/cli/pull/7803) update `@npmcli/eslint-config@5.0.1` (@reggi)
+* [`8035725`](https://github.com/npm/cli/commit/80357253ecd8483463cd66c783c4464c330d72df) [#7756](https://github.com/npm/cli/pull/7756) `@npmcli/template-oss@4.23.3` (@wraithgar)
+
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v8.0.0): `@npmcli/arborist@8.0.0`
+
+## [5.0.11](https://github.com/npm/cli/compare/libnpmfund-v5.0.10...libnpmfund-v5.0.11) (2024-05-29)
+
+### Bug Fixes
+
+* [`2d1d8d0`](https://github.com/npm/cli/commit/2d1d8d0ef18a10ac7938380884745f1d3c3cb078) [#7559](https://github.com/npm/cli/pull/7559) adds `node:` specifier to all native node modules (#7559) (@reggi)
+
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.5.3): `@npmcli/arborist@7.5.3`
+
+## [5.0.9](https://github.com/npm/cli/compare/libnpmfund-v5.0.8...libnpmfund-v5.0.9) (2024-04-30)
+
+### Bug Fixes
+
+* [`3ec86a0`](https://github.com/npm/cli/commit/3ec86a0e258b1d5f5182f0093adf43c54e82578e) [#7456](https://github.com/npm/cli/pull/7456) linting: no-unused-vars (#7456) (@wraithgar)
+* [`57ebebf`](https://github.com/npm/cli/commit/57ebebf03d55d4eda2b6439149a97b595a191aaf) [#7418](https://github.com/npm/cli/pull/7418) update repository.url in package.json (#7418) (@wraithgar)
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.5.1): `@npmcli/arborist@7.5.1`
+
+## [5.0.8](https://github.com/npm/cli/compare/libnpmfund-v5.0.7...libnpmfund-v5.0.8) (2024-04-25)
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.5.0): `@npmcli/arborist@7.5.0`
+
+## [5.0.7](https://github.com/npm/cli/compare/libnpmfund-v5.0.6...libnpmfund-v5.0.7) (2024-04-10)
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.4.2): `@npmcli/arborist@7.4.2`
+
+## [5.0.6](https://github.com/npm/cli/compare/libnpmfund-v5.0.5...libnpmfund-v5.0.6) (2024-04-03)
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.4.1): `@npmcli/arborist@7.4.1`
+
+## [5.0.5](https://github.com/npm/cli/compare/libnpmfund-v5.0.4...libnpmfund-v5.0.5) (2024-02-28)
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.4.0): `@npmcli/arborist@7.4.0`
+
+## [5.0.4](https://github.com/npm/cli/compare/libnpmfund-v5.0.3...libnpmfund-v5.0.4) (2024-01-24)
+
+### Dependencies
+
+* [workspace](https://github.com/npm/cli/releases/tag/arborist-v7.3.1): `@npmcli/arborist@7.3.1`
+
 ## [5.0.3](https://github.com/npm/cli/compare/libnpmfund-v5.0.2...libnpmfund-v5.0.3) (2024-01-10)
 
 ### Dependencies

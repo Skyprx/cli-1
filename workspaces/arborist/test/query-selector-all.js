@@ -99,6 +99,14 @@ t.test('query-selector-all', async t => {
     nock.enableNetConnect()
   })
 
+  nock('https://registry.npmjs.org')
+    .persist()
+    .post('/-/npm/v1/security/advisories/bulk')
+    .reply(200, {
+      foo: [{ id: 'test-vuln', vulnerable_versions: '*', severity: 'high', cwe: [] }],
+      sive: [{ id: 'test-vuln', vulnerable_versions: '*', severity: 'low', cwe: ['CWE-123'] }],
+      moo: [{ id: 'test-vuln', vulnerable_versions: '<1.0.0' }],
+    })
   for (const [pkg, versions] of Object.entries(packumentStubs)) {
     nock('https://registry.npmjs.org')
       .persist()
@@ -464,7 +472,7 @@ t.test('query-selector-all', async t => {
     ['#a > :root', []],
     ['#a ~ :root', []],
 
-    // pseudo miscelaneous
+    // pseudo miscellaneous
     [':empty', [
       '@npmcli/abbrev@2.0.0-beta.45',
       'a@1.0.0',
@@ -561,6 +569,7 @@ t.test('query-selector-all', async t => {
       'a@1.0.0',
       'b@1.0.0',
       'c@1.0.0',
+      // TODO this should show up in the other :type tests, see lib/query-selector-all.js
       '@npmcli/abbrev@2.0.0-beta.45',
       'abbrev@1.1.1',
       'bar@2.0.0',
@@ -587,6 +596,22 @@ t.test('query-selector-all', async t => {
       'foo@2.2.2',
       'bar@1.4.0',
       'moo@3.0.0',
+    ]],
+    [':type(registry)', [
+      'a@1.0.0',
+      'abbrev@1.1.1',
+      'b@1.0.0',
+      'bar@2.0.0',
+      'baz@1.0.0',
+      'dash-separated-pkg@1.0.0',
+      'dasher@2.0.0',
+      'foo@2.2.2',
+      'bar@1.4.0',
+      'ipsum@npm:sit@1.0.0',
+      'lorem@1.0.0',
+      'moo@3.0.0',
+      'recur@1.0.0',
+      'sive@1.0.0',
     ]],
     [':type(git)', []],
 
@@ -842,6 +867,15 @@ t.test('query-selector-all', async t => {
     ], { before: yesterday }],
     [':outdated(nonsense)', [], { before: yesterday }], // again, no results here ever
 
+    // vuln pseudo
+    [':vuln', ['foo@2.2.2', 'sive@1.0.0']],
+    [':vuln([severity=high])', ['foo@2.2.2']],
+    [':vuln:not(:vuln([cwe=123]))', ['foo@2.2.2']],
+    [':vuln([cwe])', ['sive@1.0.0']],
+    [':vuln([cwe=123])', ['sive@1.0.0']],
+    [':vuln([severity=critical])', []],
+    ['#nomatch:vuln', []], // no network requests are made if the result set is empty
+
     // attr pseudo
     [':attr([name=dasher])', ['dasher@2.0.0']],
     [':attr(dependencies, [bar="^1.0.0"])', ['foo@2.2.2']],
@@ -1001,4 +1035,126 @@ t.test('query-selector-all', async t => {
     ['#a, #bar:semver(2), #foo:semver(2.2.2)', ['a@1.0.0', 'bar@2.0.0', 'foo@2.2.2']],
     ['#b *', ['a@1.0.0', 'bar@2.0.0', 'baz@1.0.0', 'lorem@1.0.0', 'moo@3.0.0']],
   ])
+
+  // :outdated combined with --before and min-release-age-exclude.
+  // bar's 2.0.0 was published today, so `before: yesterday` normally filters it
+  // out and bar drops off the outdated list. Excluding bar bypasses the filter
+  // for that package so its newer version is considered again.
+  await t.test(':outdated honors min-release-age-exclude (exact name)', async t => {
+    const res = await querySelectorAll(tree, ':outdated', {
+      before: yesterday,
+      minReleaseAgeExclude: ['bar'],
+    })
+    t.same(res, [
+      'abbrev@1.1.1',
+      'baz@1.0.0',
+      'dash-separated-pkg@1.0.0',
+      'bar@1.4.0', // not filtered by before because bar is excluded
+    ], 'excluded package is not filtered by before')
+  })
+
+  await t.test(':outdated honors min-release-age-exclude (glob)', async t => {
+    const res = await querySelectorAll(tree, ':outdated', {
+      before: yesterday,
+      minReleaseAgeExclude: ['b*'],
+    })
+    t.same(res, [
+      'abbrev@1.1.1',
+      'baz@1.0.0',
+      'dash-separated-pkg@1.0.0',
+      'bar@1.4.0', // glob matches bar, bypassing the before filter
+    ], 'glob pattern excludes bar from the before filter')
+  })
+})
+t.test('linked strategy: :root > * excludes transitive deps and store nodes', async t => {
+  /*
+   fixture tree (linked strategy layout):
+
+    linked-test@1.0.0
+    ├── nopt@7.2.1 (symlink -> .store/nopt-hash/node_modules/nopt)
+    ├── ini@4.1.3 (symlink -> .store/ini-hash/node_modules/ini)
+    └── .store/
+        ├── nopt-hash/
+        │   └── node_modules/
+        │       ├── nopt@7.2.1 (actual)
+        │       └── abbrev (symlink -> ../../abbrev-hash/node_modules/abbrev)
+        ├── ini-hash/
+        │   └── node_modules/
+        │       └── ini@4.1.3 (actual)
+        └── abbrev-hash/
+            └── node_modules/
+                └── abbrev@2.0.0 (actual)
+  */
+
+  const path = t.testdir({
+    node_modules: {
+      nopt: t.fixture('symlink', '.store/nopt-hash/node_modules/nopt'),
+      ini: t.fixture('symlink', '.store/ini-hash/node_modules/ini'),
+      '.store': {
+        'nopt-hash': {
+          node_modules: {
+            nopt: {
+              'package.json': JSON.stringify({
+                name: 'nopt',
+                version: '7.2.1',
+                dependencies: { abbrev: '^2.0.0' },
+              }),
+            },
+            abbrev: t.fixture('symlink', '../../abbrev-hash/node_modules/abbrev'),
+          },
+        },
+        'ini-hash': {
+          node_modules: {
+            ini: {
+              'package.json': JSON.stringify({
+                name: 'ini',
+                version: '4.1.3',
+              }),
+            },
+          },
+        },
+        'abbrev-hash': {
+          node_modules: {
+            abbrev: {
+              'package.json': JSON.stringify({
+                name: 'abbrev',
+                version: '2.0.0',
+              }),
+            },
+          },
+        },
+      },
+    },
+    'package.json': JSON.stringify({
+      name: 'linked-test',
+      version: '1.0.0',
+      dependencies: {
+        nopt: '^7.0.0',
+        ini: '^4.0.0',
+      },
+    }),
+  })
+
+  const arb = new Arborist({ path })
+  const tree = await arb.loadActual()
+
+  const rootChildren = await querySelectorAll(tree, ':root > *')
+  t.same(rootChildren, [
+    'ini@4.1.3',
+    'nopt@7.2.1',
+  ], ':root > * should only return direct dependencies, not transitive deps or store nodes')
+
+  // :root > * must return the logical Links, not the store backing nodes
+  const rawChildren = await q(tree, ':root > *')
+  t.same(rawChildren.map(n => n.location).sort(), [
+    'node_modules/ini',
+    'node_modules/nopt',
+  ], ':root > * returns the logical link locations, not .store backing paths')
+
+  const rootDescendants = await querySelectorAll(tree, ':root *')
+  t.same(rootDescendants, [
+    'abbrev@2.0.0',
+    'ini@4.1.3',
+    'nopt@7.2.1',
+  ], ':root * should return all descendants including transitive deps')
 })

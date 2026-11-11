@@ -1,7 +1,7 @@
 const setEnvs = require('../lib/set-envs.js')
 const mockGlobals = require('@npmcli/mock-globals')
 
-const { join } = require('path')
+const { join } = require('node:path')
 const t = require('tap')
 const { execPath } = process
 const cwd = process.cwd()
@@ -11,6 +11,7 @@ const NODE = execPath
 
 const npmPath = '{path}'
 const npmBin = join(npmPath, 'bin/npm-cli.js')
+const nodeGypPath = require.resolve('node-gyp/bin/node-gyp.js')
 
 const mockDefinitions = (t) => {
   mockGlobals(t, { 'process.env': { EDITOR: 'vim' } })
@@ -27,6 +28,8 @@ t.test('set envs that are not defaults and not already in env', t => {
     INIT_CWD: cwd,
     EDITOR: 'vim',
     HOME: undefined,
+    npm_config_node_gyp: nodeGypPath,
+    npm_config_npm_version: 'unknown',
     npm_execpath: npmBin,
     npm_node_execpath: execPath,
     npm_config_global_prefix: globalPrefix,
@@ -80,6 +83,8 @@ t.test('set envs that are not defaults and not already in env, array style', t =
     INIT_CWD: cwd,
     EDITOR: 'vim',
     HOME: undefined,
+    npm_config_node_gyp: nodeGypPath,
+    npm_config_npm_version: 'unknown',
     npm_execpath: npmBin,
     npm_node_execpath: execPath,
     npm_config_global_prefix: globalPrefix,
@@ -130,6 +135,8 @@ t.test('set envs that are not defaults and not already in env, boolean edition',
     INIT_CWD: cwd,
     EDITOR: 'vim',
     HOME: undefined,
+    npm_config_node_gyp: nodeGypPath,
+    npm_config_npm_version: 'unknown',
     npm_execpath: npmBin,
     npm_node_execpath: execPath,
     npm_config_global_prefix: globalPrefix,
@@ -207,6 +214,8 @@ t.test('dont set configs marked as envExport:false', t => {
     INIT_CWD: cwd,
     EDITOR: 'vim',
     HOME: undefined,
+    npm_config_node_gyp: nodeGypPath,
+    npm_config_npm_version: 'unknown',
     npm_execpath: npmBin,
     npm_node_execpath: execPath,
     npm_config_global_prefix: globalPrefix,
@@ -230,5 +239,41 @@ t.test('dont set configs marked as envExport:false', t => {
   cliConf['include-workspace-root'] = true
   setEnvs(config)
   t.strictSame(env, { ...extras }, 'not exported, because envExport=false')
+  t.end()
+})
+
+t.test('does not export persistent allow-scripts config', t => {
+  const { definitions, defaults } = mockDefinitions(t)
+  const userConf = Object.create(defaults)
+  userConf['allow-scripts'] = 'canvas'
+  const envConf = Object.create(userConf)
+  const cliConf = Object.create(envConf)
+  const env = {}
+  const config = {
+    list: [cliConf, envConf],
+    env,
+    defaults,
+    definitions,
+    execPath,
+    globalPrefix,
+    localPrefix,
+    npmPath,
+    npmBin,
+  }
+
+  setEnvs(config)
+  t.equal(
+    env.npm_config_allow_scripts,
+    undefined,
+    'persistent policy is reloaded instead of exported to lifecycle scripts'
+  )
+  envConf['allow-scripts'] = 'sharp'
+  env.npm_config_allow_scripts = 'sharp'
+  setEnvs(config)
+  t.equal(
+    env.npm_config_allow_scripts,
+    'sharp',
+    'an explicit environment policy remains inherited'
+  )
   t.end()
 })

@@ -17,6 +17,9 @@ on:
     # "At 09:00 UTC (02:00 PT) on Monday" https://crontab.guru/#0_9_*_*_1
     - cron: "0 9 * * 1"
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
@@ -27,30 +30,26 @@ jobs:
         shell: bash
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Setup Git User
         run: |
           git config --global user.email "npm-cli+bot@github.com"
           git config --global user.name "npm CLI robot"
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         id: node
         with:
-          node-version: 20.x
-          check-latest: contains('20.x', '.x')
+          node-version: 26.x
+          check-latest: contains('26.x', '.x')
           cache: npm
-      - name: Install Latest npm
-        uses: ./.github/actions/install-latest-npm
-        with:
-          node: ${{ steps.node.outputs.node-version }}
       - name: Check Git Status
         run: node scripts/git-dirty.js
       - name: Reset Deps
         run: node scripts/resetdeps.js
       - name: Lint
-        run: npm run lint --ignore-scripts -w libnpmaccess
+        run: npm run lint --ignore-scripts --workspace libnpmaccess
       - name: Post Lint
-        run: npm run postlint --ignore-scripts -w libnpmaccess
+        run: npm run postlint --ignore-scripts --workspace libnpmaccess
 
   test:
     name: Test - ${{ matrix.platform.name }} - ${{ matrix.node-version }}
@@ -65,37 +64,50 @@ jobs:
           - name: macOS
             os: macos-latest
             shell: bash
+          - name: macOS
+            os: macos-15-intel
+            shell: bash
           - name: Windows
             os: windows-latest
             shell: cmd
         node-version:
-          - 16.14.0
-          - 16.x
-          - 18.0.0
-          - 18.x
-          - 20.x
+          - 22.22.2
+          - 22.x
+          - 24.15.0
+          - 24.x
+          - 26.0.0
+          - 26.x
+        exclude:
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 22.22.2
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 22.x
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 24.15.0
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 24.x
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 26.0.0
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 26.x
     runs-on: ${{ matrix.platform.os }}
     defaults:
       run:
         shell: ${{ matrix.platform.shell }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Setup Git User
         run: |
           git config --global user.email "npm-cli+bot@github.com"
           git config --global user.name "npm CLI robot"
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         id: node
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: contains(matrix.node-version, '.x')
           cache: npm
-      - name: Install Latest npm
-        uses: ./.github/actions/install-latest-npm
-        with:
-          node: ${{ steps.node.outputs.node-version }}
       - name: Check Git Status
         run: node scripts/git-dirty.js
       - name: Reset Deps
@@ -103,6 +115,6 @@ jobs:
       - name: Add Problem Matcher
         run: echo "::add-matcher::.github/matchers/tap.json"
       - name: Test
-        run: npm test --ignore-scripts -w libnpmaccess
+        run: npm test --ignore-scripts --workspace libnpmaccess
       - name: Check Git Status
         run: node scripts/git-dirty.js

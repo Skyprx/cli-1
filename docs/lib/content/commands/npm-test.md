@@ -10,8 +10,7 @@ description: Test a package
 
 ### Description
 
-This runs a predefined command specified in the `"test"` property of
-a package's `"scripts"` object.
+This runs a predefined command specified in the `"test"` property of a package's `"scripts"` object.
 
 ### Example
 
@@ -37,7 +36,7 @@ npm test
 
 ### See Also
 
-* [npm run-script](/commands/npm-run-script)
+* [npm run](/commands/npm-run)
 * [npm scripts](/using-npm/scripts)
 * [npm start](/commands/npm-start)
 * [npm restart](/commands/npm-restart)

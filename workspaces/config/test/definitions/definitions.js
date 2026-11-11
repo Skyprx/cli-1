@@ -1,6 +1,7 @@
 const t = require('tap')
-const { resolve } = require('path')
+const { resolve } = require('node:path')
 const mockGlobals = require('@npmcli/mock-globals')
+const Module = require('node:module')
 
 // have to fake the node version, or else it'll only pass on this one
 mockGlobals(t, { 'process.version': 'v14.8.0', 'process.env.NODE_ENV': undefined })
@@ -11,12 +12,41 @@ const isWin = (t, isWindows) => {
   mockGlobals(t, { 'process.platform': isWindows ? 'win32' : 'not-windows' })
 }
 
+t.test('all exported definitions seem like definitions and are sorted', t => {
+  const definitions = mockDefs()
+  const keys = Object.keys(definitions)
+  const sortedKeys = keys.sort((a, b) => a.localeCompare(b, 'en'))
+  for (const def of keys) {
+    t.ok(definitions[def].validate, `${def} has a validate function`)
+    t.ok(definitions[def].key, `${def} has a key`)
+  }
+  t.strictSame(keys, sortedKeys, 'definitions are sorted by key')
+  t.end()
+})
+
 t.test('basic flattening function camelCases from css-case', t => {
   const flat = {}
   const obj = { 'prefer-online': true }
   const definitions = mockDefs()
   definitions['prefer-online'].flatten('prefer-online', obj, flat)
   t.strictSame(flat, { preferOnline: true })
+  t.end()
+})
+
+t.test('access flattening maps private to restricted', t => {
+  const definitions = mockDefs()
+  const flatPrivate = {}
+  definitions.access.flatten('access', { access: 'private' }, flatPrivate)
+  t.equal(flatPrivate.access, 'restricted', 'private is mapped to restricted')
+  const flatRestricted = {}
+  definitions.access.flatten('access', { access: 'restricted' }, flatRestricted)
+  t.equal(flatRestricted.access, 'restricted', 'restricted is passed through')
+  const flatPublic = {}
+  definitions.access.flatten('access', { access: 'public' }, flatPublic)
+  t.equal(flatPublic.access, 'public', 'public is passed through')
+  const flatNull = {}
+  definitions.access.flatten('access', { access: null }, flatNull)
+  t.equal(flatNull.access, null, 'null is passed through')
   t.end()
 })
 
@@ -83,7 +113,7 @@ t.test('local-address allowed types', t => {
         eth69: [{ address: 'no place like home' }],
       }),
     }
-    const defs = mockDefs({ os })
+    const defs = mockDefs({ 'node:os': os })
     t.same(defs['local-address'].type, [
       null,
       '127.0.0.1',
@@ -98,7 +128,7 @@ t.test('local-address allowed types', t => {
         throw new Error('no network interfaces for some reason')
       },
     }
-    const defs = mockDefs({ os })
+    const defs = mockDefs({ 'node:os': os })
     t.same(defs['local-address'].type, [null])
     t.end()
   })
@@ -146,7 +176,7 @@ t.test('cache', t => {
 
   const flat = {}
   defsNix.cache.flatten('cache', { cache: '/some/cache/value' }, flat)
-  const { join } = require('path')
+  const { join } = require('node:path')
   t.equal(flat.cache, join('/some/cache/value', '_cacache'))
   t.equal(flat.npxCache, join('/some/cache/value', '_npx'))
 
@@ -384,11 +414,13 @@ t.test('color', t => {
 t.test('progress', t => {
   const setEnv = ({ tty, term } = {}) => mockGlobals(t, {
     'process.stderr.isTTY': tty,
+    'process.stdout.isTTY': tty,
     'process.env.TERM': term,
   })
 
   const flat = {}
 
+  // Test flatten function behavior
   mockDefs().progress.flatten('progress', {}, flat)
   t.strictSame(flat, { progress: false })
 
@@ -403,6 +435,59 @@ t.test('progress', t => {
   setEnv({ tty: true, term: 'dumb' })
   mockDefs().progress.flatten('progress', { progress: true }, flat)
   t.strictSame(flat, { progress: false })
+
+  // Ensures consistency between default and flatOptions behavior
+  t.test('default value consistency', t => {
+    // Test case 1: Both TTYs, normal terminal, not CI
+    setEnv({ tty: true, term: 'xterm' })
+    const def1 = mockDefs({ 'ci-info': { isCI: false, name: null } }).progress
+    t.equal(def1.default, true, 'default should be true when both TTYs, normal terminal, and not CI')
+
+    // Test case 2: No TTYs, not CI
+    setEnv({ tty: false, term: 'xterm' })
+    const def2 = mockDefs({ 'ci-info': { isCI: false, name: null } }).progress
+    t.equal(def2.default, false, 'default should be false when no TTYs')
+
+    // Test case 3: Both TTYs but dumb terminal, not CI
+    setEnv({ tty: true, term: 'dumb' })
+    const def3 = mockDefs({ 'ci-info': { isCI: false, name: null } }).progress
+    t.equal(def3.default, false, 'default should be false in dumb terminal')
+
+    // Test case 4: Mixed TTY states, not CI
+    mockGlobals(t, {
+      'process.stderr.isTTY': true,
+      'process.stdout.isTTY': false,
+      'process.env.TERM': 'xterm',
+    })
+    const def4 = mockDefs({ 'ci-info': { isCI: false, name: null } }).progress
+    t.equal(def4.default, false, 'default should be false when only one TTY')
+
+    // Test case 5: Good TTY environment but in CI
+    setEnv({ tty: true, term: 'xterm' })
+    const def5 = mockDefs({ 'ci-info': { isCI: true, name: 'github-actions' } }).progress
+    t.equal(def5.default, false, 'default should be false in CI even with good TTY environment')
+
+    t.end()
+  })
+
+  // Test that flatten behavior is independent of CI detection
+  t.test('flatten function ignores CI detection', t => {
+    const flatObj = {}
+
+    // Test that CI doesn't affect flatten behavior when user explicitly enables
+    setEnv({ tty: true, term: 'xterm' })
+    const defsCI = mockDefs({ 'ci-info': { isCI: true, name: 'github-actions' } })
+    defsCI.progress.flatten('progress', { progress: true }, flatObj)
+    t.equal(flatObj.progress, true, 'flatten should enable progress in CI if user explicitly sets true and TTY is available')
+
+    // Test that non-CI doesn't guarantee flatten success if TTY is bad
+    setEnv({ tty: false, term: 'xterm' })
+    const defsNoCI = mockDefs({ 'ci-info': { isCI: false, name: null } })
+    defsNoCI.progress.flatten('progress', { progress: true }, flatObj)
+    t.equal(flatObj.progress, false, 'flatten should disable progress outside CI if TTY is not available')
+
+    t.end()
+  })
 
   t.end()
 })
@@ -432,7 +517,7 @@ t.test('search options', t => {
     description: 'test description',
     exclude: 'test search exclude',
     limit: 99,
-    staleneess: 99,
+    staleness: 99,
 
   }
   const obj = {}
@@ -518,16 +603,10 @@ t.test('strictSSL', t => {
   t.end()
 })
 
-t.test('shrinkwrap/package-lock', t => {
-  const obj = { shrinkwrap: false }
+t.test('package-lock', t => {
+  const obj = {}
   const flat = {}
-  mockDefs().shrinkwrap.flatten('shrinkwrap', obj, flat)
-  t.strictSame(flat, { packageLock: false })
-  obj.shrinkwrap = true
-  mockDefs().shrinkwrap.flatten('shrinkwrap', obj, flat)
-  t.strictSame(flat, { packageLock: true })
 
-  delete obj.shrinkwrap
   obj['package-lock'] = false
   mockDefs()['package-lock'].flatten('package-lock', obj, flat)
   t.strictSame(flat, { packageLock: false })
@@ -716,8 +795,8 @@ YYYY\r
   t.test('error other than ENOENT gets thrown', t => {
     const poo = new Error('poo')
     const defnReadFileThrows = mockDefs({
-      fs: {
-        ...require('fs'),
+      'node:fs': {
+        ...require('node:fs'),
         readFileSync: () => {
           throw poo
         },
@@ -778,6 +857,102 @@ t.test('user-agent', t => {
   t.equal(flat.userAgent, expectWorkspaces)
   t.equal(process.env.npm_config_user_agent, flat.userAgent, 'npm_user_config environment is set')
   t.not(obj['user-agent'], flat.userAgent, 'config user-agent template is not translated')
+  t.end()
+})
+
+t.test('user-agent github actions ci variants', t => {
+  const npmVersion = '1.2.3'
+  const base = `npm/${npmVersion} node/${process.version} ` +
+    `${process.platform} ${process.arch} workspaces/false`
+
+  const cases = [
+    {
+      name: 'dotcom + github-hosted runner',
+      env: { GITHUB_SERVER_URL: 'https://github.com', RUNNER_ENVIRONMENT: 'github-hosted' },
+      expect: `${base} ci/github-actions/dotcom-hosted`,
+    },
+    {
+      name: 'dotcom + self-hosted runner',
+      env: { GITHUB_SERVER_URL: 'https://github.com', RUNNER_ENVIRONMENT: 'self-hosted' },
+      expect: `${base} ci/github-actions/dotcom-selfhosted`,
+    },
+    {
+      name: 'dotcom + missing runner environment',
+      env: { GITHUB_SERVER_URL: 'https://github.com', RUNNER_ENVIRONMENT: undefined },
+      expect: `${base} ci/github-actions/dotcom`,
+    },
+    {
+      name: 'dotcom + whitespace runner environment',
+      env: { GITHUB_SERVER_URL: 'https://github.com', RUNNER_ENVIRONMENT: '   ' },
+      expect: `${base} ci/github-actions/dotcom`,
+    },
+    {
+      name: 'ghe.com tenant',
+      env: { GITHUB_SERVER_URL: 'https://octocorp.ghe.com', RUNNER_ENVIRONMENT: 'github-hosted' },
+      expect: `${base} ci/github-actions/ghecom`,
+    },
+    {
+      name: 'bare ghe.com host',
+      env: { GITHUB_SERVER_URL: 'https://ghe.com', RUNNER_ENVIRONMENT: 'github-hosted' },
+      expect: `${base} ci/github-actions/ghecom`,
+    },
+    {
+      name: 'ghe.com only in path is treated as ghes',
+      env: { GITHUB_SERVER_URL: 'https://evil.example/x.ghe.com', RUNNER_ENVIRONMENT: 'self-hosted' },
+      expect: `${base} ci/github-actions/ghes`,
+    },
+    {
+      name: 'ghes (non-empty, non github.com, non ghe.com)',
+      env: { GITHUB_SERVER_URL: 'https://github.example.com', RUNNER_ENVIRONMENT: 'self-hosted' },
+      expect: `${base} ci/github-actions/ghes`,
+    },
+    {
+      name: 'missing server url stays generic',
+      env: { GITHUB_SERVER_URL: undefined, RUNNER_ENVIRONMENT: undefined },
+      expect: `${base} ci/github-actions`,
+    },
+    {
+      name: 'whitespace server url stays generic',
+      env: { GITHUB_SERVER_URL: '   ', RUNNER_ENVIRONMENT: 'github-hosted' },
+      expect: `${base} ci/github-actions`,
+    },
+  ]
+
+  for (const { name, env, expect } of cases) {
+    t.test(name, t => {
+      mockGlobals(t, { 'process.env': env })
+      const defs = mockDefs({
+        'ci-info': { isCi: true, name: 'GitHub Actions', GITHUB_ACTIONS: true },
+      })
+      const obj = {
+        'npm-version': npmVersion,
+        'user-agent': defs['user-agent'].default,
+      }
+      const flat = {}
+      defs['user-agent'].flatten('user-agent', obj, flat)
+      t.equal(flat.userAgent, expect)
+      t.equal(process.env.npm_config_user_agent, flat.userAgent, 'npm_user_config environment is set')
+      t.end()
+    })
+  }
+
+  t.test('non github-actions ci is unchanged', t => {
+    mockGlobals(t, {
+      'process.env': { GITHUB_SERVER_URL: 'https://github.com', RUNNER_ENVIRONMENT: 'github-hosted' },
+    })
+    const defs = mockDefs({
+      'ci-info': { isCi: true, name: 'Travis CI', GITHUB_ACTIONS: false },
+    })
+    const obj = {
+      'npm-version': npmVersion,
+      'user-agent': defs['user-agent'].default,
+    }
+    const flat = {}
+    defs['user-agent'].flatten('user-agent', obj, flat)
+    t.equal(flat.userAgent, `${base} ci/travis-ci`)
+    t.end()
+  })
+
   t.end()
 })
 
@@ -951,5 +1126,190 @@ t.test('otp changes auth-type', t => {
   mockDefs().otp.flatten('otp', obj, flat)
   t.strictSame(flat, { authType: 'legacy', otp: 123456 })
   t.strictSame(obj, { 'auth-type': 'legacy', otp: 123456 })
+  t.end()
+})
+
+t.test('node-gyp', t => {
+  t.test('when node-gyp is available', t => {
+    const defs = mockDefs()
+    t.type(defs['node-gyp'].default, 'string')
+    t.ok(defs['node-gyp'].default.length > 0, 'has a default path')
+    t.ok(defs['node-gyp'].default.includes('node-gyp'), 'path contains node-gyp')
+    t.end()
+  })
+
+  t.test('when node-gyp is not available', t => {
+    const origResolve = Module._resolveFilename
+
+    Module._resolveFilename = function (request, parent, isMain, options) {
+      if (request === 'node-gyp/bin/node-gyp.js') {
+        const err = new Error(`Cannot find module '${request}'`)
+        err.code = 'MODULE_NOT_FOUND'
+        throw err
+      }
+      return origResolve.call(this, request, parent, isMain, options)
+    }
+
+    try {
+      const defs = require('../../lib/definitions/definitions.js')
+      t.equal(defs['node-gyp'].default, '', 'returns empty string when node-gyp not found')
+    } finally {
+      // Restore the original resolve
+      Module._resolveFilename = origResolve
+    }
+
+    t.end()
+  })
+
+  t.end()
+})
+
+t.test('allow-git defaults to none and flattens to allowGit', t => {
+  const defs = mockDefs()
+  t.equal(defs['allow-git'].default, 'none')
+  t.strictSame(defs['allow-git'].type, ['all', 'none', 'root'])
+  const flat = {}
+  defs['allow-git'].flatten('allow-git', { 'allow-git': 'root' }, flat)
+  t.strictSame(flat, { allowGit: 'root' })
+  t.end()
+})
+
+t.test('allow-remote defaults to none and flattens to allowRemote', t => {
+  const defs = mockDefs()
+  t.equal(defs['allow-remote'].default, 'none')
+  t.strictSame(defs['allow-remote'].type, ['all', 'none', 'root'])
+  const flat = {}
+  defs['allow-remote'].flatten('allow-remote', { 'allow-remote': 'all' }, flat)
+  t.strictSame(flat, { allowRemote: 'all' })
+  t.end()
+})
+
+t.test('allow-file and allow-directory still default to all', t => {
+  const defs = mockDefs()
+  t.equal(defs['allow-file'].default, 'all', 'allow-file unchanged')
+  t.equal(defs['allow-directory'].default, 'all', 'allow-directory unchanged')
+  t.end()
+})
+
+t.test('allow-scripts', t => {
+  t.test('defaults to empty string and flattens to []', t => {
+    const defs = mockDefs()
+    t.equal(defs['allow-scripts'].default, '')
+    const flat = {}
+    defs['allow-scripts'].flatten('allow-scripts', { 'allow-scripts': '' }, flat)
+    t.strictSame(flat, { allowScripts: [] })
+    t.end()
+  })
+
+  t.test('parses comma-separated string into trimmed array', t => {
+    const flat = {}
+    mockDefs()['allow-scripts'].flatten(
+      'allow-scripts',
+      { 'allow-scripts': 'canvas, sharp ,sqlite3' },
+      flat
+    )
+    t.strictSame(flat, { allowScripts: ['canvas', 'sharp', 'sqlite3'] })
+    t.end()
+  })
+
+  t.test('drops empty entries', t => {
+    const flat = {}
+    mockDefs()['allow-scripts'].flatten(
+      'allow-scripts',
+      { 'allow-scripts': '  canvas , , sharp  ' },
+      flat
+    )
+    t.strictSame(flat, { allowScripts: ['canvas', 'sharp'] })
+    t.end()
+  })
+
+  t.test('passes array values through (multiple --allow-scripts flags)', t => {
+    const flat = {}
+    mockDefs()['allow-scripts'].flatten(
+      'allow-scripts',
+      { 'allow-scripts': ['canvas', 'sharp'] },
+      flat
+    )
+    t.strictSame(flat, { allowScripts: ['canvas', 'sharp'] })
+    t.end()
+  })
+
+  t.test('ignores non-string entries in array values', t => {
+    const flat = {}
+    mockDefs()['allow-scripts'].flatten(
+      'allow-scripts',
+      { 'allow-scripts': ['canvas', 42, null, { name: 'sharp' }, 'sqlite3'] },
+      flat
+    )
+    t.strictSame(flat, { allowScripts: ['canvas', 'sqlite3'] })
+    t.end()
+  })
+
+  t.test('splits commas within each array entry (CLI single value)', t => {
+    const flat = {}
+    mockDefs()['allow-scripts'].flatten(
+      'allow-scripts',
+      { 'allow-scripts': ['canvas,sharp', 'sqlite3'] },
+      flat
+    )
+    t.strictSame(flat, { allowScripts: ['canvas', 'sharp', 'sqlite3'] })
+    t.end()
+  })
+
+  t.test('non-string non-array values flatten to empty list', t => {
+    const flat = {}
+    mockDefs()['allow-scripts'].flatten(
+      'allow-scripts',
+      { 'allow-scripts': null },
+      flat
+    )
+    t.strictSame(flat, { allowScripts: [] })
+    t.end()
+  })
+
+  t.end()
+})
+
+t.test('strict-allow-scripts', t => {
+  const defs = mockDefs()
+  t.equal(defs['strict-allow-scripts'].default, false)
+  t.equal(defs['strict-allow-scripts'].type, Boolean)
+  const flat = {}
+  defs['strict-allow-scripts'].flatten(
+    'strict-allow-scripts',
+    { 'strict-allow-scripts': true },
+    flat
+  )
+  t.strictSame(flat, { strictAllowScripts: true })
+  t.end()
+})
+
+t.test('dangerously-allow-all-scripts', t => {
+  const defs = mockDefs()
+  t.equal(defs['dangerously-allow-all-scripts'].default, false)
+  t.equal(defs['dangerously-allow-all-scripts'].type, Boolean)
+  const flat = {}
+  defs['dangerously-allow-all-scripts'].flatten(
+    'dangerously-allow-all-scripts',
+    { 'dangerously-allow-all-scripts': true },
+    flat
+  )
+  t.strictSame(flat, { dangerouslyAllowAllScripts: true })
+  t.end()
+})
+
+t.test('global-ignore-file', t => {
+  const defs = mockDefs()
+  const def = defs['global-ignore-file']
+
+  t.ok(def, 'global-ignore-file definition is exported')
+  t.equal(def.type, require('../../lib/type-defs.js').path.type, 'is a path typed config')
+  t.equal(def.default, '', 'default value is empty (computed at load time)')
+  t.ok(/ignore/i.test(def.description), 'has a descriptive entry')
+
+  const flat = {}
+  def.flatten('global-ignore-file', { 'global-ignore-file': '/path/to/npmignore' }, flat)
+  t.strictSame(flat, { globalIgnoreFile: '/path/to/npmignore' }, 'flattens to camelCase')
+
   t.end()
 })

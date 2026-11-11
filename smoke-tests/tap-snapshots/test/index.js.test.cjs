@@ -21,16 +21,16 @@ npm help npm       more involved overview
 
 All commands:
 
-    access, adduser, audit, bugs, cache, ci, completion,
-    config, dedupe, deprecate, diff, dist-tag, docs, doctor,
-    edit, exec, explain, explore, find-dupes, fund, get, help,
-    help-search, hook, init, install, install-ci-test,
-    install-test, link, ll, login, logout, ls, org, outdated,
-    owner, pack, ping, pkg, prefix, profile, prune, publish,
-    query, rebuild, repo, restart, root, run-script, sbom,
-    search, set, shrinkwrap, star, stars, start, stop, team,
-    test, token, uninstall, unpublish, unstar, update, version,
-    view, whoami
+    access, approve-scripts, audit, bugs, cache, ci,
+    completion, config, dedupe, deny-scripts, deprecate, diff,
+    dist-tag, docs, doctor, edit, exec, explain, explore,
+    find-dupes, fund, get, help, help-search, init, install,
+    install-ci-test, install-scripts, install-test, link, ll,
+    login, logout, ls, org, outdated, owner, pack, patch, ping,
+    pkg, prefix, profile, prune, publish, query, rebuild, repo,
+    restart, root, run, sbom, search, set, stage, start, stop,
+    team, test, token, trust, undeprecate, uninstall, unpublish,
+    update, version, view, whoami
 
 Specify configs in the ini-formatted file:
     {NPM}/{TESTDIR}/home/.npmrc
@@ -43,31 +43,104 @@ npm {NPM}
 `
 
 exports[`test/index.js TAP basic npm ci > should throw mismatch deps in lock file error 1`] = `
-npm ERR! code EUSAGE
-npm ERR! 
-npm ERR! \`npm ci\` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with \`npm install\` before continuing.
-npm ERR! 
-npm ERR! Invalid: lock file's abbrev@1.0.4 does not satisfy abbrev@1.1.1
-npm ERR! 
-npm ERR! Clean install a project
-npm ERR! 
-npm ERR! Usage:
-npm ERR! npm ci
-npm ERR! 
-npm ERR! Options:
-npm ERR! [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
-npm ERR! [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
-npm ERR! [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
-npm ERR! [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
-npm ERR! [--no-bin-links] [--no-fund] [--dry-run]
-npm ERR! [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
-npm ERR! [-ws|--workspaces] [--include-workspace-root] [--install-links]
-npm ERR! 
-npm ERR! aliases: clean-install, ic, install-clean, isntall-clean
-npm ERR! 
-npm ERR! Run "npm help ci" for more info
-
-npm ERR! A complete log of this run can be found in: {NPM}/{TESTDIR}/cache/_logs/{LOG}
+npm error code EUSAGE
+npm error
+npm error \`npm ci\` can only install packages when your package.json and package-lock.json are in sync. Please update your lock file with \`npm install\` before continuing.
+npm error
+npm error Invalid: lock file's abbrev@1.0.4 does not satisfy abbrev@1.1.1
+npm error
+npm error Clean install a project
+npm error
+npm error Usage:
+npm error npm ci
+npm error
+npm error Options:
+npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts]
+npm error [--allow-directory <all|none|root>] [--allow-file <all|none|root>]
+npm error [--allow-git <all|none|root>] [--allow-remote <all|none|root>]
+npm error [--allow-scripts <package-list> [--allow-scripts <package-list> ...]]
+npm error [--strict-allow-scripts] [--dangerously-allow-all-scripts] [--no-audit]
+npm error [--no-bin-links] [--no-fund] [--dry-run]
+npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+npm error [--workspaces] [--include-workspace-root] [--install-links]
+npm error
+npm error   --install-strategy
+npm error     Sets the strategy for installing packages in node_modules.
+npm error
+npm error   --legacy-bundling
+npm error     Instead of hoisting package installs in \`node_modules\`, install packages
+npm error
+npm error   --global-style
+npm error     Only install direct dependencies in the top level \`node_modules\`,
+npm error
+npm error   --omit
+npm error     Dependency types to omit from the installation tree on disk.
+npm error
+npm error   --include
+npm error     Option that allows for defining which types of dependencies to install.
+npm error
+npm error   --strict-peer-deps
+npm error     If set to \`true\`, and \`--legacy-peer-deps\` is not set, then _any_
+npm error
+npm error   --foreground-scripts
+npm error     Run all build scripts (ie, \`preinstall\`, \`install\`, and
+npm error
+npm error   --ignore-scripts
+npm error     If true, npm does not run scripts specified in package.json files.
+npm error
+npm error   --allow-directory
+npm error     Limits the ability for npm to install dependencies from directories.
+npm error
+npm error   --allow-file
+npm error     Limits the ability for npm to install dependencies from tarball files.
+npm error
+npm error   --allow-git
+npm error     Limits the ability for npm to fetch dependencies from git references.
+npm error
+npm error   --allow-remote
+npm error     Limits the ability for npm to fetch dependencies from urls.
+npm error
+npm error   --allow-scripts
+npm error     Comma-separated list of packages whose install-time lifecycle scripts
+npm error
+npm error   --strict-allow-scripts
+npm error     If \`true\`, turn the install-script policy from a warning into a hard
+npm error
+npm error   --dangerously-allow-all-scripts
+npm error     If \`true\`, bypass the \`allowScripts\` policy entirely and run every
+npm error
+npm error   --audit
+npm error     When "true" submit audit reports alongside the current npm command to the
+npm error
+npm error   --bin-links
+npm error     Tells npm to create symlinks (or \`.cmd\` shims on Windows) for package
+npm error
+npm error   --fund
+npm error     When "true" displays the message at the end of each \`npm install\`
+npm error
+npm error   --dry-run
+npm error     Indicates that you don't want npm to make any changes and that it should
+npm error
+npm error   -w|--workspace
+npm error     Enable running a command in the context of the configured workspaces of the
+npm error
+npm error   --workspaces
+npm error     Set to true to run the command in the context of **all** configured
+npm error
+npm error   --include-workspace-root
+npm error     Include the workspace root when workspaces are enabled for a command.
+npm error
+npm error   --install-links
+npm error     When set file: protocol dependencies will be packed and installed as
+npm error
+npm error
+npm error aliases: clean-install, ic, install-clean, isntall-clean
+npm error
+npm error Run "npm help ci" for more info
+npm error A complete log of this run can be found in: {NPM}/{TESTDIR}/cache/_logs/{LOG}
 `
 
 exports[`test/index.js TAP basic npm diff > should have expected diff output 1`] = `
@@ -117,8 +190,7 @@ Wrote to {NPM}/{TESTDIR}/project/package.json:
     "test": "echo /"Error: no test specified/" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "type": "commonjs"
 }
 `
 
@@ -134,7 +206,6 @@ Object {
       "devDependencies": Object {
         "promise-all-reject-late": "^5.0.0",
       },
-      "license": "ISC",
       "name": "project",
       "version": "1.0.0",
     },
@@ -158,7 +229,6 @@ Object {
 
 exports[`test/index.js TAP basic npm install dev dep > should have expected dev dep added package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
@@ -167,12 +237,12 @@ Object {
     "promise-all-reject-late": "^5.0.0",
   },
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -197,7 +267,6 @@ Object {
       "dependencies": Object {
         "abbrev": "^1.0.4",
       },
-      "license": "ISC",
       "name": "project",
       "version": "1.0.0",
     },
@@ -213,18 +282,17 @@ Object {
 
 exports[`test/index.js TAP basic npm install prodDep@version > should have expected package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
   "description": "",
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -242,32 +310,29 @@ abbrev     1.0.4   1.1.1   1.1.1  node_modules/abbrev  project
 
 exports[`test/index.js TAP basic npm pkg > should have expected npm pkg delete modified package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
   "description": "",
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
 
 exports[`test/index.js TAP basic npm pkg > should have expected npm pkg set modified package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
   "description": "",
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
@@ -279,6 +344,7 @@ Object {
       "LC_ALL=sk",
     ],
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -288,7 +354,7 @@ exports[`test/index.js TAP basic npm pkg > should have expected pkg delete outpu
 `
 
 exports[`test/index.js TAP basic npm pkg > should have expected pkg get output 1`] = `
-"ISC"
+
 `
 
 exports[`test/index.js TAP basic npm pkg > should have expected pkg set output 1`] = `
@@ -296,32 +362,22 @@ exports[`test/index.js TAP basic npm pkg > should have expected pkg set output 1
 `
 
 exports[`test/index.js TAP basic npm pkg > should print package.json contents 1`] = `
-{
-  "name": "project",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo /"Error: no test specified/" && exit 1",
-    "hello": "echo Hello"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "abbrev": "^1.0.4"
-  },
-  "tap": {
-    "test-env": [
-      "LC_ALL=sk"
-    ]
-  }
+name = 'project'
+version = '1.0.0'
+description = ''
+main = 'index.js'
+scripts = {
+  test: 'echo "Error: no test specified" && exit 1',
+  hello: 'echo Hello'
 }
+keywords = []
+type = 'commonjs'
+dependencies = { abbrev: '^1.0.4' }
+tap = { 'test-env': [ 'LC_ALL=sk' ] }
 `
 
 exports[`test/index.js TAP basic npm pkg set scripts > should have expected script added package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
@@ -330,13 +386,13 @@ Object {
     "promise-all-reject-late": "^5.0.0",
   },
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -349,10 +405,7 @@ exports[`test/index.js TAP basic npm prefix > should have expected prefix output
 {NPM}/{TESTDIR}/project
 `
 
-exports[`test/index.js TAP basic npm run-script > should have expected run-script output 1`] = `
-> project@1.0.0 hello
-> echo Hello
-
+exports[`test/index.js TAP basic npm run > should have expected run output 1`] = `
 Hello
 `
 
@@ -365,7 +418,6 @@ Object {
       "dependencies": Object {
         "abbrev": "^1.0.4",
       },
-      "license": "ISC",
       "name": "project",
       "version": "1.0.0",
     },
@@ -381,19 +433,18 @@ Object {
 
 exports[`test/index.js TAP basic npm uninstall > should have expected uninstall package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
   "description": "",
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -414,7 +465,6 @@ Object {
       "devDependencies": Object {
         "promise-all-reject-late": "^5.0.0",
       },
-      "license": "ISC",
       "name": "project",
       "version": "1.0.0",
     },
@@ -438,7 +488,6 @@ Object {
 
 exports[`test/index.js TAP basic npm update dep > should have expected update package.json result 1`] = `
 Object {
-  "author": "",
   "dependencies": Object {
     "abbrev": "^1.0.4",
   },
@@ -447,13 +496,13 @@ Object {
     "promise-all-reject-late": "^5.0.0",
   },
   "keywords": Array [],
-  "license": "ISC",
   "main": "index.js",
   "name": "project",
   "scripts": Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `

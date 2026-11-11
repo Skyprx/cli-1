@@ -1,8 +1,7 @@
 const Arborist = require('../..')
-const { resolve, basename } = require('path')
-const { writeFileSync } = require('fs')
-const { mkdir } = require('fs/promises')
-const { rmSync } = require('fs')
+const { resolve, basename } = require('node:path')
+const { writeFileSync, rmSync } = require('node:fs')
+const { mkdir } = require('node:fs/promises')
 const dir = resolve(__dirname, basename(__filename, '.js'))
 
 // these are not arbitrary, the empty/full and no-* bits matter
@@ -34,7 +33,7 @@ const suite = async (suite, { registry, cache }) => {
 
   // do it one time so that we have it in the shared cache
   // and benchmark the case where we don't have anything to do
-  // this doens't get pushed into promises, because we need it
+  // this doesn't get pushed into promises, because we need it
   // before we do the other ones, so we can write the lockfile.
   {
     const path = resolve(dir, 'full')

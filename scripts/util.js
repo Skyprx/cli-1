@@ -1,7 +1,7 @@
-const fsp = require('fs/promises')
-const { resolve, join, relative } = require('path')
-const { formatWithOptions } = require('util')
-const log = require('proc-log')
+const fsp = require('node:fs/promises')
+const { resolve, join, relative } = require('node:path')
+const { formatWithOptions } = require('node:util')
+const { log } = require('proc-log')
 const nopt = require('nopt')
 const npmGit = require('@npmcli/git')
 const promiseSpawn = require('@npmcli/promise-spawn')
@@ -12,17 +12,19 @@ const mapWorkspaces = require('@npmcli/map-workspaces')
 const EOL = '\n'
 const CWD = resolve(__dirname, '..')
 
+const rootPkgPath = join(CWD, 'package.json')
 const pkg = require(join(CWD, 'package.json'))
 pkg.mapWorkspaces = async ({ public = false } = {}) => {
   const ws = []
   for (const [name, path] of await mapWorkspaces({ pkg })) {
-    const pkgJson = require(join(path, 'package.json'))
+    const pkgPath = join(path, 'package.json')
+    const pkgJson = require(pkgPath)
 
     if (public && pkgJson.private) {
       continue
     }
 
-    ws.push({ name, path, pkg: pkgJson })
+    ws.push({ name, path, pkgPath, pkg: pkgJson })
   }
   return ws
 }
@@ -132,7 +134,7 @@ git.dirty = () => npmGit.isClean({ cwd: CWD }).then(async r => {
     return 'git clean'
   }
   await git('status', '--porcelain=v1', '-uno')
-  await git('diff')
+  await git('--no-pager', 'diff')
   throw new Error('git dirty')
 })
 
@@ -205,6 +207,7 @@ const run = async (main, { redact } = {}) => {
 module.exports = {
   CWD,
   pkg,
+  pkgPath: rootPkgPath,
   run,
   fs,
   spawn,

@@ -1,6 +1,6 @@
 const Arborist = require('@npmcli/arborist')
 const packlist = require('npm-packlist')
-const { join, relative } = require('path')
+const { join, relative } = require('node:path')
 const localeCompare = require('@isaacs/string-locale-compare')('en')
 const PackageJson = require('@npmcli/package-json')
 const { run, CWD, git, fs, pkg: rootPkg, EOL } = require('./util')
@@ -214,7 +214,7 @@ const main = async () => {
   // Get all files within node_modules and remove the node_modules/ portion of
   // the path for processing since this list will go inside a gitignore at the
   // root of the node_modules dir. It also removes workspaces since those are
-  // symlinks and should not be commited into source control.
+  // symlinks and should not be committed into source control.
   const files = allFiles
     .filter(f => f.startsWith('node_modules/'))
     .map(f => f.replace(/^node_modules\//, ''))

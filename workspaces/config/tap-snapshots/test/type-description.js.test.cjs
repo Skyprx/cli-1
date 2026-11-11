@@ -15,11 +15,45 @@ Object {
     null,
     "restricted",
     "public",
+    "private",
   ],
   "all": Array [
     "boolean value (true or false)",
   ],
+  "allow-directory": Array [
+    "all",
+    "none",
+    "root",
+  ],
+  "allow-file": Array [
+    "all",
+    "none",
+    "root",
+  ],
+  "allow-git": Array [
+    "all",
+    "none",
+    "root",
+  ],
+  "allow-remote": Array [
+    "all",
+    "none",
+    "root",
+  ],
   "allow-same-version": Array [
+    "boolean value (true or false)",
+  ],
+  "allow-scripts": Array [
+    Function String(),
+    Function Array(),
+  ],
+  "allow-scripts-pending": Array [
+    "boolean value (true or false)",
+  ],
+  "allow-scripts-pin": Array [
+    "boolean value (true or false)",
+  ],
+  "allow-unused-patches": Array [
     "boolean value (true or false)",
   ],
   "also": Array [
@@ -54,6 +88,9 @@ Object {
     null,
     "boolean value (true or false)",
     Function String(),
+  ],
+  "bypass-2fa": Array [
+    "boolean value (true or false)",
   ],
   "ca": Array [
     null,
@@ -95,6 +132,9 @@ Object {
     null,
     Function String(),
   ],
+  "dangerously-allow-all-scripts": Array [
+    "boolean value (true or false)",
+  ],
   "depth": Array [
     null,
     "numeric value",
@@ -133,11 +173,31 @@ Object {
   "dry-run": Array [
     "boolean value (true or false)",
   ],
+  "edit-dir": Array [
+    null,
+    "valid filesystem path",
+  ],
   "editor": Array [
     Function String(),
   ],
   "engine-strict": Array [
     "boolean value (true or false)",
+  ],
+  "expect-result-count": Array [
+    null,
+    "numeric value",
+  ],
+  "expect-results": Array [
+    null,
+    "boolean value (true or false)",
+  ],
+  "expires": Array [
+    null,
+    "numeric value",
+  ],
+  "extension-file": Array [
+    null,
+    "valid filesystem path",
   ],
   "fetch-retries": Array [
     "numeric value",
@@ -175,6 +235,9 @@ Object {
   "global": Array [
     "boolean value (true or false)",
   ],
+  "global-ignore-file": Array [
+    "valid filesystem path",
+  ],
   "global-style": Array [
     "boolean value (true or false)",
   ],
@@ -191,6 +254,15 @@ Object {
   "if-present": Array [
     "boolean value (true or false)",
   ],
+  "ignore-existing": Array [
+    "boolean value (true or false)",
+  ],
+  "ignore-extension": Array [
+    "boolean value (true or false)",
+  ],
+  "ignore-patch-failures": Array [
+    "boolean value (true or false)",
+  ],
   "ignore-scripts": Array [
     "boolean value (true or false)",
   ],
@@ -200,6 +272,9 @@ Object {
     "dev",
     "optional",
     "peer",
+  ],
+  "include-attestations": Array [
+    "boolean value (true or false)",
   ],
   "include-staged": Array [
     "boolean value (true or false)",
@@ -222,6 +297,12 @@ Object {
   ],
   "init-module": Array [
     "valid filesystem path",
+  ],
+  "init-private": Array [
+    "boolean value (true or false)",
+  ],
+  "init-type": Array [
+    Function String(),
   ],
   "init-version": Array [
     "full valid SemVer string",
@@ -255,6 +336,9 @@ Object {
     "linked",
   ],
   "json": Array [
+    "boolean value (true or false)",
+  ],
+  "keep-edit-dir": Array [
     "boolean value (true or false)",
   ],
   "key": Array [
@@ -314,6 +398,21 @@ Object {
   "message": Array [
     Function String(),
   ],
+  "min-release-age": Array [
+    null,
+    "numeric value",
+  ],
+  "min-release-age-exclude": Array [
+    Function Array(),
+    Function String(),
+  ],
+  "name": Array [
+    null,
+    Function String(),
+  ],
+  "node-gyp": Array [
+    "valid filesystem path",
+  ],
   "node-options": Array [
     null,
     Function String(),
@@ -343,6 +442,17 @@ Object {
     null,
     "boolean value (true or false)",
   ],
+  "orgs": Array [
+    null,
+    Function String(),
+    Function Array(),
+  ],
+  "orgs-permission": Array [
+    null,
+    "read-only",
+    "read-write",
+    "no-access",
+  ],
   "os": Array [
     null,
     Function String(),
@@ -364,8 +474,30 @@ Object {
   "package-lock-only": Array [
     "boolean value (true or false)",
   ],
+  "packages": Array [
+    null,
+    Function String(),
+    Function Array(),
+  ],
+  "packages-all": Array [
+    "boolean value (true or false)",
+  ],
+  "packages-and-scopes-permission": Array [
+    null,
+    "read-only",
+    "read-write",
+    "read-write-stage-only",
+    "no-access",
+  ],
   "parseable": Array [
     "boolean value (true or false)",
+  ],
+  "password": Array [
+    null,
+    Function String(),
+  ],
+  "patches-dir": Array [
+    Function String(),
   ],
   "prefer-dedupe": Array [
     "boolean value (true or false)",
@@ -451,6 +583,11 @@ Object {
   "scope": Array [
     Function String(),
   ],
+  "scopes": Array [
+    null,
+    Function String(),
+    Function Array(),
+  ],
   "script-shell": Array [
     null,
     Function String(),
@@ -470,13 +607,16 @@ Object {
   "shell": Array [
     Function String(),
   ],
-  "shrinkwrap": Array [
-    "boolean value (true or false)",
-  ],
   "sign-git-commit": Array [
     "boolean value (true or false)",
   ],
   "sign-git-tag": Array [
+    "boolean value (true or false)",
+  ],
+  "strict-allow-scripts": Array [
+    "boolean value (true or false)",
+  ],
+  "strict-npmrc": Array [
     "boolean value (true or false)",
   ],
   "strict-peer-deps": Array [
@@ -493,6 +633,14 @@ Object {
   ],
   "timing": Array [
     "boolean value (true or false)",
+  ],
+  "to": Array [
+    null,
+    Function String(),
+  ],
+  "token-description": Array [
+    null,
+    Function String(),
   ],
   "umask": Array [
     "octal number in range 0o000..0o777 (0..511)",

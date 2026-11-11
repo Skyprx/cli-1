@@ -1,5 +1,100 @@
 # Changelog
 
+## [9.0.0](https://github.com/npm/cli/compare/libnpmorg-v9.0.0-pre.0...libnpmorg-v9.0.0) (2026-07-08)
+### ⚠️ BREAKING CHANGES
+* `npm` now supports node `^22.22.2 || ^24.15.0 || >=26.0.0`
+### Features
+* [`5b83698`](https://github.com/npm/cli/commit/5b83698a4f76e3f2962b9954dddb180fa85d4c77) [#9737](https://github.com/npm/cli/pull/9737) trigger release process (#9737) (@reggi)
+
+## [9.0.0-pre.0](https://github.com/npm/cli/compare/libnpmorg-v8.0.1...libnpmorg-v9.0.0-pre.0) (2026-06-19)
+### ⚠️ BREAKING CHANGES
+* `npm` now supports node `^22.22.2 || ^24.15.0 || >=26.0.0`
+### Features
+* [`18eb967`](https://github.com/npm/cli/commit/18eb9672dc884be4412752fb6e55e9d33c261c65) [#9559](https://github.com/npm/cli/pull/9559) bump to new node engine range (@owlstronaut)
+### Dependencies
+* [`1f9c567`](https://github.com/npm/cli/commit/1f9c56792493f80fb3b3d61710086ed748312f2a) [#9559](https://github.com/npm/cli/pull/9559) `npm-registry-fetch@20.0.1`
+### Chores
+* [`1453954`](https://github.com/npm/cli/commit/1453954f9328a6b2480c183f9d1903ac93764915) [#9559](https://github.com/npm/cli/pull/9559) `nock@14.0.0` (@owlstronaut)
+* [`0323f2d`](https://github.com/npm/cli/commit/0323f2d74bf2e747957c74992d9431e3fca35f85) [#9559](https://github.com/npm/cli/pull/9559) template-oss-apply (@owlstronaut)
+* [`ee3d87f`](https://github.com/npm/cli/commit/ee3d87fe521bc144493b93a94d456c22eb147dbf) [#9559](https://github.com/npm/cli/pull/9559) `@npmcli/template-oss@5.1.1` (@owlstronaut)
+* [`d25a179`](https://github.com/npm/cli/commit/d25a1798f3ba8ff80437f491afc17e98ef07c77f) [#9559](https://github.com/npm/cli/pull/9559) template-oss-apply (@owlstronaut)
+* [`40fcab4`](https://github.com/npm/cli/commit/40fcab45d356545f8db7f34df3e5630116d0dd40) [#8991](https://github.com/npm/cli/pull/8991) `@npmcli/template-oss@4.29.0` (@wraithgar)
+* [`5e0909b`](https://github.com/npm/cli/commit/5e0909b74ea1510eaae348d66548c75030911ed8) [#8620](https://github.com/npm/cli/pull/8620) fix spelling in workspaces (#8620) (@jsoref)
+
+## [8.0.1](https://github.com/npm/cli/compare/libnpmorg-v8.0.0...libnpmorg-v8.0.1) (2025-09-23)
+### Dependencies
+* [`1149971`](https://github.com/npm/cli/commit/11499711e4c10e4ddb97bf3e1ef1652d151894fb) [#8576](https://github.com/npm/cli/pull/8576) `npm-registry-fetch@19.0.0`
+### Chores
+* [`402a0ab`](https://github.com/npm/cli/commit/402a0ab1b4e5d1a8414dd063d0cbde0c0bc5a192) [#8576](https://github.com/npm/cli/pull/8576) `@npmcli/template-oss@4.25.1` (@wraithgar)
+* [`3f60b5f`](https://github.com/npm/cli/commit/3f60b5f9621b43ae0b8796d3a7160a603748f756) [#8383](https://github.com/npm/cli/pull/8383) `@npmcli/template-oss@4.24.4` (#8383) (@wraithgar)
+* [`01f8cc6`](https://github.com/npm/cli/commit/01f8cc6f001e3211135fa0563f7129aed09dc46c) [#8381](https://github.com/npm/cli/pull/8381) `@npmcli/template-oss@4.24.3` (#8381) (@wraithgar)
+
+## [8.0.0](https://github.com/npm/cli/compare/libnpmorg-v8.0.0-pre.1...libnpmorg-v8.0.0) (2024-12-16)
+### Features
+* [`a7bfc6d`](https://github.com/npm/cli/commit/a7bfc6df76882996ebb834dbca785fdf33b8c50d) [#7972](https://github.com/npm/cli/pull/7972) trigger release process (#7972) (@wraithgar)
+### Chores
+* [`a07f4e0`](https://github.com/npm/cli/commit/a07f4e0d921f640be6aa87736debd550ec478f89) [#7976](https://github.com/npm/cli/pull/7976) `@npmcli/template-oss@4.23.6` (@wraithgar)
+
+## [8.0.0-pre.1](https://github.com/npm/cli/compare/libnpmorg-v8.0.0-pre.0...libnpmorg-v8.0.0-pre.1) (2024-12-06)
+### ⚠️ BREAKING CHANGES
+* Upon publishing, in order to apply a default "latest" dist tag, the command now retrieves all prior versions of the package. It will require that the version you're trying to publish is above the latest semver version in the registry, not including pre-release tags.
+### Features
+* [`f3ac7b7`](https://github.com/npm/cli/commit/f3ac7b7460e1d9e1f9d3d8056317e36bb9813d5d) [#7939](https://github.com/npm/cli/pull/7939) no implicit latest tag on publish when latest > version (#7939) (@reggi, @ljharb)
+
+## [8.0.0-pre.0](https://github.com/npm/cli/compare/libnpmorg-v7.0.0...libnpmorg-v8.0.0-pre.0) (2024-11-26)
+### ⚠️ BREAKING CHANGES
+* libnpmorg now supports node `^20.17.0 || >=22.9.0`
+### Bug Fixes
+* [`62c4604`](https://github.com/npm/cli/commit/62c4604c9c1fcdb511f922d40edb1aecb6f9943d) [#7831](https://github.com/npm/cli/pull/7831) for libnpmorg sets node engine range to `^20.17.0 || >=22.9.0` (@reggi)
+### Chores
+* [`6edfe2f`](https://github.com/npm/cli/commit/6edfe2f3a45169b6d194ccd8d366bb8d0e09b4a5) [#7937](https://github.com/npm/cli/pull/7937) `@npmcli/template-oss@4.23.5` (@wraithgar)
+
+## [7.0.0](https://github.com/npm/cli/compare/libnpmorg-v6.0.6...libnpmorg-v7.0.0) (2024-10-03)
+### ⚠️ BREAKING CHANGES
+* `libnpmorg` now supports node `^18.17.0 || >=20.5.0`
+### Bug Fixes
+* [`47f6f76`](https://github.com/npm/cli/commit/47f6f764235fd9a268afc504b03038b22e97537d) [#7803](https://github.com/npm/cli/pull/7803) align libnpmorg to npm 10 node engine range (@reggi)
+### Dependencies
+* [`d13a20b`](https://github.com/npm/cli/commit/d13a20bebef1b9932f86c44741ea6d214ad6842b) [#7803](https://github.com/npm/cli/pull/7803) update `npm-registry-fetch@18.0.1`
+### Chores
+* [`2072705`](https://github.com/npm/cli/commit/2072705aa80d009dc077639adc305692f4a6c0b9) [#7803](https://github.com/npm/cli/pull/7803) update `@npmcli/eslint-config@5.0.1` (@reggi)
+* [`8035725`](https://github.com/npm/cli/commit/80357253ecd8483463cd66c783c4464c330d72df) [#7756](https://github.com/npm/cli/pull/7756) `@npmcli/template-oss@4.23.3` (@wraithgar)
+
+## [6.0.6](https://github.com/npm/cli/compare/libnpmorg-v6.0.5...libnpmorg-v6.0.6) (2024-05-15)
+
+### Dependencies
+
+* [`c2b28f9`](https://github.com/npm/cli/commit/c2b28f9d6cba12e88f849e5b4a82607e2c218a16) [#7498](https://github.com/npm/cli/pull/7498) `minipass@7.1.1`
+* [`dade2c8`](https://github.com/npm/cli/commit/dade2c88d23289d57351d614feaa876d9e1e17f4) [#7480](https://github.com/npm/cli/pull/7480) `minipass@7.1.0`
+* [`63ef498`](https://github.com/npm/cli/commit/63ef498bf2916a882a92c0b9fe6de6728584694a) [#7457](https://github.com/npm/cli/pull/7457) `npm-registry-fetch@17.0.1`
+
+### Chores
+
+* [`9c4d3c4`](https://github.com/npm/cli/commit/9c4d3c402c77bd7aaa514ee9e02d7fd87223343e) [#7467](https://github.com/npm/cli/pull/7467) template-oss-apply (@lukekarrys)
+* [`2b7ec54`](https://github.com/npm/cli/commit/2b7ec54f52f9e8aee568ccb4e34ce4a5733af21a) [#7467](https://github.com/npm/cli/pull/7467) `template-oss@4.22.0` (@lukekarrys)
+
+## [6.0.5](https://github.com/npm/cli/compare/libnpmorg-v6.0.4...libnpmorg-v6.0.5) (2024-04-30)
+
+### Bug Fixes
+
+* [`57ebebf`](https://github.com/npm/cli/commit/57ebebf03d55d4eda2b6439149a97b595a191aaf) [#7418](https://github.com/npm/cli/pull/7418) update repository.url in package.json (#7418) (@wraithgar)
+
+### Dependencies
+
+* [`a7145d4`](https://github.com/npm/cli/commit/a7145d422485fcbcb9427efa775c15180c7ee1c2) [#7453](https://github.com/npm/cli/pull/7453) `npm-registry-fetch@17.0.0`
+
+## [6.0.4](https://github.com/npm/cli/compare/libnpmorg-v6.0.3...libnpmorg-v6.0.4) (2024-04-25)
+
+### Dependencies
+
+* [`ee4b3e0`](https://github.com/npm/cli/commit/ee4b3e0e741545045dc03741c7147560961d867d) [#7373](https://github.com/npm/cli/pull/7373) `npm-registry-fetch@16.2.1`
+
+## [6.0.3](https://github.com/npm/cli/compare/libnpmorg-v6.0.2...libnpmorg-v6.0.3) (2024-04-03)
+
+### Dependencies
+
+* [`87a61fc`](https://github.com/npm/cli/commit/87a61fc8bb65c950cda389ab3d14ae250ab2345d) [#7334](https://github.com/npm/cli/pull/7334) `npm-registry-fetch@16.2.0`
+
 ## [6.0.2](https://github.com/npm/cli/compare/libnpmorg-v6.0.1...libnpmorg-v6.0.2) (2023-12-06)
 
 ### Chores
@@ -123,7 +218,7 @@
 ## 2.0.0 (2020-03-02)
 
 ### BREAKING CHANGE
-- Removed `figgy-pudding` as a dependecy
+- Removed `figgy-pudding` as a dependency
 - Using native promises
 - Require node >= v10
 

@@ -10,18 +10,16 @@ description: Restart a package
 
 ### Description
 
-This restarts a project.  It is equivalent to running `npm run-script
-restart`.
+This restarts a project.
+It is equivalent to running `npm run restart`.
 
-If the current project has a `"restart"` script specified in
-`package.json`, then the following scripts will be run:
+If the current project has a `"restart"` script specified in `package.json`, then the following scripts will be run:
 
 1. prerestart
 2. restart
 3. postrestart
 
-If it does _not_ have a `"restart"` script specified, but it does have
-`stop` and/or `start` scripts, then the following scripts will be run:
+If it does _not_ have a `"restart"` script specified, but it does have `stop` and/or `start` scripts, then the following scripts will be run:
 
 1. prerestart
 2. prestop
@@ -38,7 +36,7 @@ If it does _not_ have a `"restart"` script specified, but it does have
 
 ### See Also
 
-* [npm run-script](/commands/npm-run-script)
+* [npm run](/commands/npm-run)
 * [npm scripts](/using-npm/scripts)
 * [npm test](/commands/npm-test)
 * [npm start](/commands/npm-start)

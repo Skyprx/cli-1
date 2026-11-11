@@ -18,6 +18,10 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   lint-all:
     name: Lint All
@@ -28,7 +32,7 @@ jobs:
         shell: bash
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
       - name: Setup Git User
@@ -44,23 +48,23 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sha: ${{ inputs.check-sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         id: node
         with:
-          node-version: 20.x
-          check-latest: contains('20.x', '.x')
+          node-version: 26.x
+          check-latest: contains('26.x', '.x')
           cache: npm
       - name: Check Git Status
         run: node scripts/git-dirty.js
       - name: Reset Deps
         run: node scripts/resetdeps.js
       - name: Lint
-        run: node . run lint --ignore-scripts -ws -iwr --if-present
+        run: node . run lint --ignore-scripts --workspaces --include-workspace-root --if-present
       - name: Post Lint
-        run: node . run postlint --ignore-scripts -ws -iwr --if-present
+        run: node . run postlint --ignore-scripts --workspaces --include-workspace-root --if-present
       - name: Conclude Check
         uses: LouisBrunner/checks-action@v1.6.0
-        if: always()
+        if: steps.create-check.outputs.check-id && always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           conclusion: ${{ job.status }}
@@ -79,21 +83,39 @@ jobs:
           - name: macOS
             os: macos-latest
             shell: bash
+          - name: macOS
+            os: macos-15-intel
+            shell: bash
           - name: Windows
             os: windows-latest
             shell: cmd
         node-version:
-          - 18.17.0
-          - 18.x
-          - 20.5.0
-          - 20.x
+          - 22.22.2
+          - 22.x
+          - 24.15.0
+          - 24.x
+          - 26.0.0
+          - 26.x
+        exclude:
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 22.22.2
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 22.x
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 24.15.0
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 24.x
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 26.0.0
+          - platform: { name: macOS, os: macos-15-intel, shell: bash }
+            node-version: 26.x
     runs-on: ${{ matrix.platform.os }}
     defaults:
       run:
         shell: ${{ matrix.platform.shell }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
       - name: Setup Git User
@@ -109,7 +131,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sha: ${{ inputs.check-sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         id: node
         with:
           node-version: ${{ matrix.node-version }}
@@ -122,23 +144,23 @@ jobs:
       - name: Add Problem Matcher
         run: echo "::add-matcher::.github/matchers/tap.json"
       - name: Test
-        run: node . test --ignore-scripts -ws -iwr --if-present
+        run: node . test --ignore-scripts --workspaces --include-workspace-root --if-present
       - name: Check Git Status
         run: node scripts/git-dirty.js
       - name: Conclude Check
         uses: LouisBrunner/checks-action@v1.6.0
-        if: always()
+        if: steps.create-check.outputs.check-id && always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           conclusion: ${{ job.status }}
           check_id: ${{ steps.create-check.outputs.check-id }}
 
-  smoke-publish:
-    # This cant be tested on Windows because our node_modules directory
-    # checks in symlinks which are not supported there. This should be
-    # fixed somehow, because this means some forms of local development
-    # are likely broken on Windows as well.
-    name: Smoke Publish - ${{ matrix.platform.name }} - ${{ matrix.node-version }}
+  smoke-tests:
+    # This cant be tested on Windows because our node_modules directory	
+    # checks in symlinks which are not supported there. This should be	
+    # fixed somehow, because this means some forms of local development	
+    # are likely broken on Windows as well.	
+    name: Smoke Tests - ${{ matrix.platform.name }} - ${{ matrix.node-version }}
     if: github.repository_owner == 'npm'
     strategy:
       fail-fast: false
@@ -147,21 +169,20 @@ jobs:
           - name: Linux
             os: ubuntu-latest
             shell: bash
-          - name: macOS
-            os: macos-latest
-            shell: bash
         node-version:
-          - 18.17.0
-          - 18.x
-          - 20.5.0
-          - 20.x
+          - 22.22.2
+          - 22.x
+          - 24.15.0
+          - 24.x
+          - 26.0.0
+          - 26.x
     runs-on: ${{ matrix.platform.os }}
     defaults:
       run:
         shell: ${{ matrix.platform.shell }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
       - name: Setup Git User
@@ -173,11 +194,11 @@ jobs:
         if: ${{ inputs.check-sha }}
         uses: ./.github/actions/create-check
         with:
-          name: "Smoke Publish - ${{ matrix.platform.name }} - ${{ matrix.node-version }}"
+          name: "Smoke Tests - ${{ matrix.platform.name }} - ${{ matrix.node-version }}"
           token: ${{ secrets.GITHUB_TOKEN }}
           sha: ${{ inputs.check-sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         id: node
         with:
           node-version: ${{ matrix.node-version }}
@@ -187,30 +208,74 @@ jobs:
         run: node scripts/git-dirty.js
       - name: Reset Deps
         run: node scripts/resetdeps.js
-      - name: Pack
-        env:
-          SMOKE_PUBLISH_NPM: 1
-        run: |
-          NPM_VERSION="$(node . --version)-$GITHUB_SHA.0"
-          node . version $NPM_VERSION --ignore-scripts
-          node scripts/publish.js --pack-destination=$RUNNER_TEMP
-          export SMOKE_PUBLISH_TARBALL="$RUNNER_TEMP/npm-$NPM_VERSION.tgz"
-          node . install --global $SMOKE_PUBLISH_TARBALL
-          node . install -w smoke-tests --ignore-scripts --no-audit --no-fund
-          # call installed npm instead of local source since we are testing
-          # the packed tarball that we just installed globally
-          NPM_GLOBAL_VERSION="$(npm --version)"
-          npm help
-          if [ "$NPM_GLOBAL_VERSION" == "$NPM_VERSION" ]; then
-            npm test -w smoke-tests --ignore-scripts
-          else
-            echo "global npm is not the correct version for smoke-publish"
-            echo "found: $NPM_GLOBAL_VERSION, expected: $NPM_VERSION"
-            exit 1
-          fi
+      - name: Smoke Tests
+        run: ./scripts/smoke-tests.sh
       - name: Conclude Check
         uses: LouisBrunner/checks-action@v1.6.0
-        if: always()
+        if: steps.create-check.outputs.check-id && always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          conclusion: ${{ job.status }}
+          check_id: ${{ steps.create-check.outputs.check-id }}
+
+  publish-dryrun:
+    # This cant be tested on Windows because our node_modules directory	
+    # checks in symlinks which are not supported there. This should be	
+    # fixed somehow, because this means some forms of local development	
+    # are likely broken on Windows as well.	
+    name: Publish Dry-Run - ${{ matrix.platform.name }} - ${{ matrix.node-version }}
+    if: github.repository_owner == 'npm'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: Linux
+            os: ubuntu-latest
+            shell: bash
+        node-version:
+          - 22.22.2
+          - 22.x
+          - 24.15.0
+          - 24.x
+          - 26.0.0
+          - 26.x
+    runs-on: ${{ matrix.platform.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.platform.shell }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Setup Git User
+        run: |
+          git config --global user.email "npm-cli+bot@github.com"
+          git config --global user.name "npm CLI robot"
+      - name: Create Check
+        id: create-check
+        if: ${{ inputs.check-sha }}
+        uses: ./.github/actions/create-check
+        with:
+          name: "Publish Dry-Run - ${{ matrix.platform.name }} - ${{ matrix.node-version }}"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ inputs.check-sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        id: node
+        with:
+          node-version: ${{ matrix.node-version }}
+          check-latest: contains(matrix.node-version, '.x')
+          cache: npm
+      - name: Check Git Status
+        run: node scripts/git-dirty.js
+      - name: Reset Deps
+        run: node scripts/resetdeps.js
+      - name: Publish Dry-Run
+        run: node ./scripts/publish.js --pack-destination=$RUNNER_TEMP --smoke-publish=true
+      - name: Conclude Check
+        uses: LouisBrunner/checks-action@v1.6.0
+        if: steps.create-check.outputs.check-id && always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           conclusion: ${{ job.status }}

@@ -2,7 +2,7 @@ const Shrinkwrap = require('../lib/shrinkwrap.js')
 const Node = require('../lib/node.js')
 const Link = require('../lib/link.js')
 const calcDepFlags = require('../lib/calc-dep-flags.js')
-const fs = require('fs')
+const fs = require('node:fs')
 const Arborist = require('../lib/arborist/index.js')
 
 const t = require('tap')
@@ -10,14 +10,13 @@ const t = require('tap')
 const normalizePath = path => path.replace(/[A-Z]:/, '').replace(/\\/g, '/')
 t.cleanSnapshot = s => s.split(process.cwd()).join('{CWD}')
 
-const { resolve } = require('path')
+const { resolve } = require('node:path')
 const fixture = resolve(__dirname, 'fixtures/install-types')
 const swonlyFixture = resolve(__dirname, 'fixtures/install-types-sw-only')
 const YarnLock = require('../lib/yarn-lock.js')
 const yarnFixture = resolve(__dirname, 'fixtures/yarn-stuff')
 const emptyFixture = resolve(__dirname, 'fixtures/empty')
 const depTypesFixture = resolve(__dirname, 'fixtures/dev-deps')
-const badJsonFixture = resolve(__dirname, 'fixtures/testing-peer-deps-bad-sw')
 const hiddenLockfileFixture = resolve(__dirname, 'fixtures/hidden-lockfile')
 const hidden = 'node_modules/.package-lock.json'
 const saxFixture = resolve(__dirname, 'fixtures/sax')
@@ -79,6 +78,20 @@ t.test('starting out with a reset lockfile is an empty lockfile', async t => {
   t.equal(sw.filename, resolve(fixture, 'package-lock.json'))
 })
 
+t.test('errors on a lockfileVersion newer than supported', async t => {
+  const dir = t.testdir({
+    'package-lock.json': JSON.stringify({
+      name: 'x',
+      version: '1.0.0',
+      lockfileVersion: 5,
+      requires: true,
+      packages: {},
+    }),
+  })
+  await t.rejects(Shrinkwrap.load({ path: dir }), { code: 'ELOCKFILEVERSION' },
+    'a lockfile newer than the supported version is refused')
+})
+
 t.test('reset in a bad dir gets an empty lockfile with no lockfile version', async t => {
   const nullLockDir = t.testdir({
     'package-lock.json': JSON.stringify(null),
@@ -120,7 +133,8 @@ t.test('loading in bad dir gets empty lockfile', async t => {
 })
 
 t.test('failure to parse json gets empty lockfile', async t => {
-  const sw = await Shrinkwrap.load({ path: badJsonFixture })
+  const path = t.testdir({ 'package-lock.json': 'this is not valid json {' })
+  const sw = await Shrinkwrap.load({ path })
   t.strictSame(sw.data, {
     lockfileVersion: 3,
     requires: true,
@@ -331,7 +345,7 @@ t.test('construct metadata from node and package data', t => {
   const root = new Node({
     pkg: {
       name: 'root',
-      dependencies: { a: '', link: '', link2: '' },
+      dependencies: { a: '', link: '', link2: '', link3: '' },
       devDependencies: { d: '', e: 'https://foo.com/e.tgz', devit: '' },
       optionalDependencies: { optin: '' },
       peerDependencies: { peer: '' },
@@ -393,6 +407,7 @@ t.test('construct metadata from node and package data', t => {
       },
       os: ['any', '!win32'],
       cpu: ['x64'],
+      libc: ['glibc'],
     },
     resolved: '/home/user/projects/root/archives/tarball.tgz',
     parent: root,
@@ -424,6 +439,31 @@ t.test('construct metadata from node and package data', t => {
       root,
       pkg: {
         name: 'link',
+        version: '1.2.3',
+        funding: 'https://example.com/payme',
+        _resolved: 'github:isaacs/foobarbaz#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      },
+    }),
+  })
+  // special case when link alias is the same as target package name
+  const link3 = new Link({
+    name: 'link3',
+    path: '/home/user/projects/root/node_modules/link3',
+    realpath: '/home/user/projects/root/realPkg',
+    parent: root,
+    pkg: {
+      name: 'link3',
+      version: '1.2.3',
+      funding: 'https://example.com/payme',
+      _resolved: 'github:isaacs/foobarbaz#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    },
+    target: new Node({
+      name: 'link3',
+      realpath: '/home/user/projects/root/realPkg',
+      path: '/home/user/projects/root/realPkg',
+      root,
+      pkg: {
+        name: 'link3',
         version: '1.2.3',
         funding: 'https://example.com/payme',
         _resolved: 'github:isaacs/foobarbaz#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -520,6 +560,10 @@ t.test('construct metadata from node and package data', t => {
     'metadata for tarball file pkg with _resolved value')
   t.matchSnapshot(meta.get(link.path), 'link metadata')
   t.matchSnapshot(meta.get(link.target.path), 'link target metadata')
+
+  t.matchSnapshot(meta.get(link3.path), 'link metadata with same pkg name as link target')
+  t.matchSnapshot(meta.get(link3.target.path), 'link target metadata with same pkg name as link target')
+
   t.matchSnapshot(meta.get(a.location), 'dep a metadata')
   t.matchSnapshot(meta.get(d.location), 'dep d metadata')
   t.matchSnapshot(meta.get(e.location), 'dep e metadata')
@@ -548,7 +592,7 @@ t.test('saving dependency-free shrinkwrap object', t => {
       resolve(`${dir}/node_modules/.package-lock.json`),
       'correct filepath on shrinkwrap instance'
     )
-    // save does not throw, but doens't write the file
+    // save does not throw, but doesn't write the file
     await sw.save()
     t.throws(() => fs.statSync(sw.filename))
   })
@@ -647,7 +691,7 @@ t.test('write the shrinkwrap back to disk', t => {
   t.end()
 })
 
-t.test('load shrinkwrap if no package-lock.json present', async t => {
+t.test('ignore npm-shrinkwrap.json at the project root', async t => {
   const dir = t.testdir({
     'npm-shrinkwrap.json': JSON.stringify({
       lockfileVersion: 1,
@@ -656,14 +700,12 @@ t.test('load shrinkwrap if no package-lock.json present', async t => {
     }),
   })
   let s
-  s = await Shrinkwrap.load({ path: dir, shrinkwrapOnly: true })
-  t.equal(s.type, 'npm-shrinkwrap.json', 'loaded with swonly')
-  s = await Shrinkwrap.reset({ path: dir, shrinkwrapOnly: true })
-  t.equal(s.type, 'npm-shrinkwrap.json', 'loaded fresh')
   s = await Shrinkwrap.load({ path: dir })
-  t.equal(s.type, 'npm-shrinkwrap.json', 'loaded without swonly')
+  t.equal(s.loadedFromDisk, false, 'shrinkwrap is not loaded from disk')
+  t.notOk(s.filename.endsWith('npm-shrinkwrap.json'), 'filename is package-lock.json')
   s = await Shrinkwrap.reset({ path: dir })
-  t.equal(s.type, 'npm-shrinkwrap.json', 'loaded fresh without swonly')
+  t.equal(s.loadedFromDisk, false, 'reset does not find shrinkwrap')
+  t.notOk(s.filename.endsWith('npm-shrinkwrap.json'), 'reset filename is package-lock.json')
 })
 
 t.test('load yarn.lock file if present', async t => {
@@ -690,7 +732,7 @@ t.test('ignore yarn lock file parse errors', async t => {
   t.equal(s.yarnLock.entries.size, 0, 'did not get any entries out of it')
 })
 
-t.test('load a resolution from yarn.lock if we dont have our own', async t => {
+t.test('load a resolution from yarn.lock if we do not have our own', async t => {
   const path = t.testdir({
     'yarn.lock': `
 # THIS IS AN AUTOGENERATED FILE. DO NOT EDIT THIS FILE DIRECTLY.
@@ -833,6 +875,141 @@ t.test('load a hidden lockfile', async t => {
   const data = s.commit()
   t.equal(data.packages[''], undefined, 'no root entry')
   t.equal(data.dependencies, undefined, 'deleted legacy metadata')
+})
+
+t.test('skip inert nodes in commit', async t => {
+  // When a proxy registry returns 404 or incomplete manifests for
+  // platform-specific optional deps, #pruneFailedOptional marks them
+  // inert.  commit() must skip inert nodes — otherwise the lockfile
+  // gets entries like {"optional": true} without version/resolved/integrity
+  // that cause "Invalid Version:" errors on subsequent npm ci.
+  const path = t.testdir({
+    'package.json': JSON.stringify({
+      name: 'proxy-registry-repro',
+      version: '1.0.0',
+      devDependencies: { esbuild: '^0.27.0' },
+    }),
+  })
+  const meta = new Shrinkwrap({ path })
+  meta.data = {
+    lockfileVersion: 3,
+    packages: {},
+  }
+
+  const root = new Node({
+    pkg: {
+      name: 'proxy-registry-repro',
+      version: '1.0.0',
+      devDependencies: { esbuild: '^0.27.0' },
+    },
+    path,
+    realpath: path,
+  })
+
+  // esbuild with full metadata (valid)
+  const esbuild = new Node({
+    pkg: {
+      name: 'esbuild',
+      version: '0.27.7',
+      optionalDependencies: {
+        '@esbuild/linux-x64': '0.27.7',
+        '@esbuild/aix-ppc64': '0.27.7',
+      },
+    },
+    name: 'esbuild',
+    parent: root,
+  })
+  esbuild.dev = true
+
+  // platform dep with full metadata (current platform — valid, NOT inert)
+  const validDep = new Node({
+    pkg: {
+      name: '@esbuild/linux-x64',
+      version: '0.27.7',
+      os: ['linux'],
+      cpu: ['x64'],
+    },
+    name: '@esbuild/linux-x64',
+    parent: root,
+  })
+  validDep.optional = true
+  validDep.dev = true
+
+  // platform dep marked inert (proxy registry 404'd or returned incomplete manifest)
+  // #pruneFailedOptional sets inert=true on these nodes
+  const brokenDep = new Node({
+    pkg: {
+      name: '@esbuild/aix-ppc64',
+      // no version — proxy registry returned 404 or incomplete manifest
+    },
+    name: '@esbuild/aix-ppc64',
+    parent: esbuild,
+  })
+  brokenDep.optional = true
+  brokenDep.dev = true
+  brokenDep.extraneous = false
+  brokenDep.inert = true
+
+  // file: optional dep WITHOUT version (legitimate — NOT inert, should be kept)
+  const fileDep = new Node({
+    pkg: {
+      name: 'my-local-optional',
+      // no version — but this is a file: dep, so it's legitimate
+    },
+    name: 'my-local-optional',
+    parent: root,
+    resolved: 'file:../my-local-optional',
+  })
+  fileDep.optional = true
+  fileDep.extraneous = false
+
+  // local optional dep WITHOUT version or resolved (NOT inert, should be kept)
+  const localDep = new Node({
+    pkg: {
+      name: 'my-disk-optional',
+      // no version, no resolved — loaded from local node_modules
+    },
+    name: 'my-disk-optional',
+    parent: root,
+  })
+  localDep.optional = true
+  localDep.extraneous = false
+
+  meta.tree = root
+  const committed = meta.commit()
+
+  // The valid platform dep should be in the lockfile
+  const validLoc = 'node_modules/@esbuild/linux-x64'
+  t.ok(
+    committed.packages[validLoc],
+    'valid optional dep is included'
+  )
+  t.equal(
+    committed.packages[validLoc].version,
+    '0.27.7',
+    'valid optional dep has version'
+  )
+
+  // The inert dep should NOT be in the lockfile
+  const brokenLoc = 'node_modules/esbuild/node_modules/@esbuild/aix-ppc64'
+  t.notOk(
+    committed.packages[brokenLoc],
+    'inert optional dep is excluded from lockfile'
+  )
+
+  // The file: optional dep WITHOUT version SHOULD be kept (not inert)
+  const fileLoc = 'node_modules/my-local-optional'
+  t.ok(
+    committed.packages[fileLoc],
+    'file: optional dep without version is preserved in lockfile'
+  )
+
+  // The local (resolved=null) optional dep WITHOUT version SHOULD be kept (not inert)
+  const localLoc = 'node_modules/my-disk-optional'
+  t.ok(
+    committed.packages[localLoc],
+    'local optional dep without version is preserved in lockfile'
+  )
 })
 
 t.test('load a fresh hidden lockfile', async t => {
@@ -1570,14 +1747,15 @@ t.test('shrinkwrap where root is a link node', async t => {
   })
 })
 
-t.test('prioritize npm-shrinkwrap.json over package-lock.json', async t => {
+t.test('ignore npm-shrinkwrap.json even when package-lock.json is also present', async t => {
   const path = t.testdir({
-    'npm-shrinkwrap.json': '{}',
-    'package-lock.json': '{}',
+    'npm-shrinkwrap.json': '{"name":"from-shrinkwrap"}',
+    'package-lock.json': '{"name":"from-package-lock"}',
     'package.json': '{}',
   })
   const sw = await Shrinkwrap.load({ path })
-  t.equal(sw.type, 'npm-shrinkwrap.json')
+  t.equal(sw.type, 'package-lock.json')
+  t.equal(sw.data.name, 'from-package-lock', 'read package-lock.json, not npm-shrinkwrap.json')
 })
 
 t.test('do not add metadata if versions mismatch', async t => {
